@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using PromotionsWebApp.Core.Interfaces;
 using PromotionsWebApp.Domain.Entities;
 using PromotionsWebApp.Domain.Settings;
+using PromotionsWebApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -119,7 +120,7 @@ namespace PromotionsWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            if (User.IsInRole("Master"))
+            if (User.IsInRole("Admin"))
             {
                 IEnumerable<User> users = _userManager.Users.AsEnumerable();
                 List<UserVM> userList = new List<UserVM>();
@@ -127,14 +128,7 @@ namespace PromotionsWebApp.Controllers
                 {
                     if (!user.isDeleted)
                     {
-                        var substitution = new SubstitutionVM();
-                        if (user.SubId > 0)
-                        {
-                            var sub = await _repo.GetSingle(user.SubId);
-                            substitution = new SubstitutionVM(sub.UserSubFromId, sub.UserSubToId, sub.UserSubFrom.ToString(), sub.UserSubTo.ToString(), sub.DateFrom, sub.DateTo, sub.Active);
-                        }
-
-                        userList.Add(new UserVM(user.Id, user.FirstName, user.Surname, user.Role, user.Department, user.Email, user.Substituted, user.SubId, substitution));
+                        userList.Add(new UserVM(user.Id, user.FirstName, user.LastName, user.Role, user.Department, user.Email));
                     }
 
                 }
@@ -182,19 +176,8 @@ namespace PromotionsWebApp.Controllers
 
                 //add user to system
                 var username = model.FirstName.Substring(0, 1) + model.Surname;
-                var user = new User
-                {
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    Surname = model.Surname,
-                    Role = model.Role,
-                    Department = model.Department,
-                    EmailConfirmed = true,
-                    UserName = username.ToUpper(),
-                    SubId = 0,
-                    Substituted = false,
-                    PasswordReset = true
-                };
+                var user = new User(defaultUser.Title, defaultUser.FirstName, defaultUser.LastName,
+                                defaultUser.Role, defaultUser.Email);
                 var users = await _userManager.FindByEmailAsync(user.Email);
                 if (users != null)
                 {

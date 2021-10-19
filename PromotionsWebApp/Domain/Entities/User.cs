@@ -24,13 +24,14 @@ namespace PromotionsWebApp.Domain.Entities
             EmailConfirmed = false;
             UserName = FirstName + " " + LastName;
             ProfileImage = GenerateAvatarImage();
+            PasswordReset = true;
         }
 
         public TitleEnum Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public byte[] ProfileImage { get; set; }
-        public string Department { get; set; }
+        public DepartmentEnum Department { get; set; }
         public UserRoleEnum Role { get; set; }
         public bool PasswordReset { get; set; }
         public bool isDeleted { get; set; }

@@ -1,6 +1,5 @@
 ﻿using PromotionsWebApp.Domain.Abstract;
 using PromotionsWebApp.Domain.Entities;
-using PromotionsWebApp.Domain.Entities.Procurement;
 using PromotionsWebApp.Domain.Settings;
 using System;
 using System.Collections.Generic;
@@ -18,14 +17,14 @@ namespace PromotionsWebApp.Core.Configurations
                 new DefaultUser("SystemAdmin","",UserRoleEnum.Master,DepartmentEnum.IT,"master@email.com","iamsystemadmin")
             };
         }
-        public static List<Vendor> VendorSeed()
-        {
-            return new List<Vendor>
-            {
-                new Vendor("Hishiko Technologies", "dhishiko@gmail.com", "Tulonga Hishiko","0815542840"),
-                new Vendor("Tuliza Inc", "dhishiko@gmail.com", "Tulonga Hishiko","0815542840")
-            };
-        }
+        //public static List<Vendor> VendorSeed()
+        //{
+        //    return new List<Vendor>
+        //    {
+        //        new Vendor("Hishiko Technologies", "dhishiko@gmail.com", "Tulonga Hishiko","0815542840"),
+        //        new Vendor("Tuliza Inc", "dhishiko@gmail.com", "Tulonga Hishiko","0815542840")
+        //    };
+        //}
        
     }
 }
