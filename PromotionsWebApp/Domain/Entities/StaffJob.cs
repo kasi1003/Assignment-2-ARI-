@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace PromotionsWebApp.Domain.Entities
 {
-    public class UserJob:BaseEntity
+    public class StaffJob:BaseEntity
     {
-        public int UserId { get; set; }
-        public virtual User User { get; set; }
+        public int StaffId { get; set; }
+        public virtual Staff Staff { get; set; }
         public int JobId { get; set; }
         public virtual Job Job { get; set; }
         public bool IsCurrent { get; set; }

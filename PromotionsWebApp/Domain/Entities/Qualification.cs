@@ -8,7 +8,7 @@ namespace PromotionsWebApp.Domain.Entities
 {
     public class Qualification:BaseEntity
     {
-        public int UserId { get; set; }
+        public int StaffId { get; set; }
         public string Name { get; set; }
         public string Instition { get; set; }
         public int YearObtained { get; set; }

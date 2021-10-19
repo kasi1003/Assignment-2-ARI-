@@ -10,8 +10,7 @@ namespace PromotionsWebApp.Domain.Entities
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public int DepartmentId { get; set; }
-        public virtual Department Department { get; set; }
+        public DepartmentEnum Department { get; set; }
         public Rank RankId { get; set; }
         public virtual Rank Rank {get;set;}
     }

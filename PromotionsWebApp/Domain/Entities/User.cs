@@ -21,6 +21,7 @@ namespace PromotionsWebApp.Domain.Entities
             LastName = surname;
             Role = role;
             Email = email;
+            EmailConfirmed = false;
             UserName = FirstName + " " + LastName;
             ProfileImage = GenerateAvatarImage();
         }
@@ -29,11 +30,10 @@ namespace PromotionsWebApp.Domain.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public byte[] ProfileImage { get; set; }
+        public string Department { get; set; }
         public UserRoleEnum Role { get; set; }
         public bool PasswordReset { get; set; }
         public bool isDeleted { get; set; }
-        public virtual IEnumerable<UserJob> Jobs { get; set; }
-        public virtual IEnumerable<Qualification> Qualifications { get; set; }
         private byte[] GenerateAvatarImage()
         {
             //first, create a dummy bitmap just to get a graphics object  

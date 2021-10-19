@@ -20,6 +20,7 @@ namespace PromotionsWebApp.Domain.Settings
         public TitleEnum Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public DepartmentEnum Department { get; set; }
         public byte[] ProfileImage { get; set; }
         public UserRoleEnum Role { get; set; }
         public string Email { get; set; }

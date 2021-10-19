@@ -8,8 +8,10 @@ namespace PromotionsWebApp.Domain.Entities
 {
     public class Staff:BaseEntity
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public virtual User User { get; set; }
+        public virtual IEnumerable<StaffJob> Jobs { get; set; }
+        public virtual IEnumerable<Qualification> Qualifications { get; set; }
         public int? ResumeId { get; set; }
         public Document Resume { get; set; }
     }

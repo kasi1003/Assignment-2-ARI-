@@ -8,7 +8,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using PromotionsWebApp.Core.Configurations;
 using PromotionsWebApp.Core.Data;
+using PromotionsWebApp.Core.Interfaces;
+using PromotionsWebApp.Core.Repositories;
 using PromotionsWebApp.Domain.Settings;
 using System;
 using System.Collections.Generic;
@@ -37,9 +40,12 @@ namespace PromotionsWebApp
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<pContext>();
+
+            //Add Dependencies
             var emailMetadata = Configuration.GetSection("EmailMetadata").Get<EmailMetadata>();
             services.AddSingleton(emailMetadata);
-
+            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+            services.AddTransient<IUserRepository,UserRepository>();
             services.AddSingleton<IEmailSender, EmailSender>();
             services.AddSingleton<IFileProvider>(
             new PhysicalFileProvider(
@@ -48,6 +54,7 @@ namespace PromotionsWebApp
             {
                 options.AutomaticAuthentication = false;
             });
+            
             services.AddControllersWithViews();
         }
 
@@ -69,7 +76,8 @@ namespace PromotionsWebApp
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            //Seed Database
+            app.ApplicationServices.EnsureSeeded();
             app.UseAuthentication();
             app.UseAuthorization();
 

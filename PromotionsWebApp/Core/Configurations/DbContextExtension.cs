@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using PromotionsWebApp.Domain.Settings;
 
 namespace PromotionsWebApp.Core.Configurations
 {
@@ -34,41 +35,19 @@ namespace PromotionsWebApp.Core.Configurations
         //Identity seed methods
         private static async Task CreateDefaultUserAndRoleForApplication(UserManager<User> um, RoleManager<IdentityRole> rm)
         {
-
-            const string administratorRole = "Administrator";
-            const string managerRole = "Manager";
-            const string masterRole = "Master";
-            const string becRole = "BEC";
             List<DefaultUser> defaultUserList = SeedData.DefaultUserSeed();
-
             await CreateRoles(rm);
             foreach (DefaultUser defaultUser in defaultUserList) 
             {
                 var user = await CreateDefaultUser(um, defaultUser);
                 await SetPasswordForDefaultUser(um, defaultUser, user);
-                switch(defaultUser.Role)
-                {
-                    case UserRoleEnum.Administrator:
-                        await AddDefaultRoleToDefaultUser(um, defaultUser, administratorRole, user);
-                        break;
-                    case UserRoleEnum.Manager:
-                        await AddDefaultRoleToDefaultUser(um, defaultUser, managerRole, user);
-                        break;
-                    case UserRoleEnum.Master:
-                        await AddDefaultRoleToDefaultUser(um, defaultUser, masterRole, user);
-                        break;
-                    case UserRoleEnum.BEC:
-                        await AddDefaultRoleToDefaultUser(um, defaultUser, becRole, user);
-                        break;
-                }
-                
-            }
-            
+                await AddDefaultRoleToDefaultUser(um, user.Role.ToString(), user);
+
+            }         
         }
         private static async Task CreateRoles(RoleManager<IdentityRole> rm)
         {
-            string[] roles = new[] {"Administrator", "Manager","Master","BEC" };
-            foreach (var role in roles)
+            foreach(string role in Enum.GetNames(typeof(UserRoleEnum)))
             {
                 if (!await rm.RoleExistsAsync(role))
                 {
@@ -81,16 +60,8 @@ namespace PromotionsWebApp.Core.Configurations
         private static async Task<User> CreateDefaultUser(UserManager<User> um, DefaultUser defaultUser)
         {
             //logger.LogInformation($"Create default user with email `{defaultUser.Email}` for application");
-            var user = new User
-            {
-                Email = defaultUser.Email,
-                FirstName = defaultUser.FirstName,
-                Surname = defaultUser.Surname,
-                UserName = defaultUser.FirstName,
-                Role = defaultUser.Role,
-                Department = defaultUser.Department,
-                EmailConfirmed = true
-            };
+            var user = new User(defaultUser.Title, defaultUser.FirstName,defaultUser.LastName,
+                                defaultUser.Role, defaultUser.Email);
 
             var ir = await um.CreateAsync(user);
             if (ir.Succeeded)
@@ -104,7 +75,7 @@ namespace PromotionsWebApp.Core.Configurations
                 throw exception;
             }
 
-            var createdUser = await um.FindByEmailAsync(defaultUser.Email);
+            var createdUser = await um.FindByEmailAsync(user.Email);
             return createdUser;
         }
         private static async Task SetPasswordForDefaultUser(UserManager<User> um, DefaultUser defaultUser, User user)
@@ -117,12 +88,12 @@ namespace PromotionsWebApp.Core.Configurations
             }
             else
             {
-                var exception = new ApplicationException($"Password for the user `{defaultUser.Email}` cannot be set");
+                var exception = new ApplicationException($"Password for the user `{user.Email}` cannot be set");
                 //logger.LogError(exception, GetIdentiryErrorsInCommaSeperatedList(ir));
                 throw exception;
             }
         }
-        private static async Task AddDefaultRoleToDefaultUser(UserManager<User> um, DefaultUser defaultUser, string role, User user)
+        private static async Task AddDefaultRoleToDefaultUser(UserManager<User> um, string role, User user)
         {
             //logger.LogInformation($"Add default user `{defaultUser.Email}` to role '{administratorRole}'");
             var ir = await um.AddToRoleAsync(user, role);
@@ -132,7 +103,7 @@ namespace PromotionsWebApp.Core.Configurations
             }
             else
             {
-                var exception = new ApplicationException($"The role `{role}` cannot be set for the user `{defaultUser.Email}`");
+                var exception = new ApplicationException($"The role `{role}` cannot be set for the user `{user.Email}`");
                 //logger.LogError(exception, GetIdentiryErrorsInCommaSeperatedList(ir));
                 throw exception;
             }

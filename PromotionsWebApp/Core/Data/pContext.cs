@@ -20,7 +20,7 @@ namespace PromotionsWebApp.Core.Data
         public DbSet<Job> Job { get; set; }
         public DbSet<Rank> Rank { get; set; }
         public DbSet<Staff> Staff { get; set; }
-        public DbSet<UserJob> StaffJob { get; set; }
+        public DbSet<StaffJob> StaffJob { get; set; }
         public DbSet<StaffRating> StaffRating { get; set; }
     }
 }
