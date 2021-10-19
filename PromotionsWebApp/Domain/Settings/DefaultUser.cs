@@ -8,19 +8,20 @@ namespace PromotionsWebApp.Domain.Settings
 {
     public class DefaultUser
     {
-        public DefaultUser(string name,string surname,UserRoleEnum role,DepartmentEnum dep, string email, string password)
+        public DefaultUser(TitleEnum title, string name,string surname,UserRoleEnum role, string email, string password)
         {
+            Title = title;
             FirstName = name;
-            Surname = surname;
+            LastName = surname;
             Email = email;
             Password = password;
             Role = role;
-            Department = dep;
         }
+        public TitleEnum Title { get; set; }
         public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public byte[] ProfileImage { get; set; }
         public UserRoleEnum Role { get; set; }
-        public DepartmentEnum Department { get; set; }
-        public string Surname { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
     }

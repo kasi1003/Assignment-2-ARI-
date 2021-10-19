@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -21,7 +22,7 @@ namespace PromotionsWebApp.Utilities
                 return memoryStream.ToArray();
             }
         }
-
+   
         //Tempdata
         public static void Set<T>(this ITempDataDictionary tempData, string key, T value) where T : class
         {
