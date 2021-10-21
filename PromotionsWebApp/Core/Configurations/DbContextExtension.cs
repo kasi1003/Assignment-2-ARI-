@@ -61,8 +61,8 @@ namespace PromotionsWebApp.Core.Configurations
         {
             //logger.LogInformation($"Create default user with email `{defaultUser.Email}` for application");
             var user = new User(defaultUser.Title, defaultUser.FirstName,defaultUser.LastName,
-                                defaultUser.Role, defaultUser.Email);
-
+                                defaultUser.Role,defaultUser.Department, defaultUser.Email);
+            user.PasswordReset = false;
             var ir = await um.CreateAsync(user);
             if (ir.Succeeded)
             {

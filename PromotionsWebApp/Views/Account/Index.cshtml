@@ -1,0 +1,98 @@
+﻿@using PromotionsWebApp.Domain.Entities
+@using PromotionsWebApp.Models
+@using PromotionsWebApp.Utilities
+@using PromotionsWebApp.ViewComponents
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@model UsersVM
+@{
+    ViewData["Title"] = "Users";
+    string Search = "";
+    if (ViewData["CurrentFilter"] != null)
+        Search = ViewData["CurrentFilter"].ToString();
+    string LinkUrl = "Index";
+    string LinkArea = "Account";
+    var prevDisabled = "True";
+    var nextDisabled = "True";
+    var prevPageNr = 1;
+    var nextPageNr = 1;
+    if (Model.Users.Count > 0)
+    {
+        prevDisabled = !Model.Users.HasPreviousPage ? "disabled" : "";
+        nextDisabled = !Model.Users.HasNextPage ? "disabled" : "";
+        prevPageNr = Model.Users.PageIndex - 1;
+        nextPageNr = Model.Users.PageIndex + 1;
+    }
+}
+
+<div class="row">
+    <h4 class="center-align">Users</h4>
+    <div class="divider"></div>
+    @if (Model.Users.Any())
+    {
+        <div class="col s12">
+            @await Component.InvokeAsync("Search", new { model = new SearchViewComponent.SearchViewModel(Search, LinkUrl, LinkArea) })
+            <ul class="collection">
+                @foreach (UserVM user in Model.Users)
+                {
+                    <li class="collection-item avatar">
+                        <img src="data:image;base64,@System.Convert.ToBase64String(user.ProfileImage)" width="80" height="80" class="circle">
+                        <span class="Title">
+                            @user.ToUserString()
+                        </span>
+                        <p>
+                            @if ((await AuthorizationService.AuthorizeAsync(User, "ShowUserDepartmentPolicy")).Succeeded)
+                            {
+                                <span>Deparment: @user.Department.GetEnumDescription()</span><br>
+                            }
+                            Role: @user.Role.ToString()
+                        </p>
+                        <span class="secondary-content">
+                            <a asp-action="Profile" asp-route-userId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Profile"><i class="material-icons">edit</i></a>
+                            <a id="submitConfirmBtn" href="#confirmationModal"
+                               onclick="initConfirmModal('Delete', 'User','@user.Id')"
+                               class="tooltipped" data-position="top" data-tooltip="Delete User">
+                                <i class="material-icons">delete</i>
+                            </a>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="col s12 m12 l12">
+            <div class="card-panel blue darken-2 center-align">
+                <span class="white-text">
+                    No Users are currently existing in the system.
+                </span>
+            </div>
+        </div>
+    }
+    <div class="center-align">
+        @await Component.InvokeAsync("Pager", new
+        {
+            model = new PagerViewComponent.PagerViewModel
+                        (prevPageNr, nextPageNr, Search, LinkUrl, LinkArea, nextDisabled, prevDisabled)
+        })
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <div class="input-field col s12 center-align ">
+            <a asp-action="Index" asp-controller="Home" class="btn waves-effect waves-light btn-large green lighten-1">
+                <span class="material-icons md-dark md-24 matIcon">
+                    keyboard_return
+                </span>
+                <span class="black-text">Back</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="fixed-action-btn">
+        <a asp-action="Create" class="btn-floating blue tooltipped" data-position="left" data-tooltip="Create User">
+            <i class="large material-icons">add</i>
+        </a>
+    </div>
+</div>

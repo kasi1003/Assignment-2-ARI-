@@ -8,7 +8,7 @@ namespace PromotionsWebApp.Domain.Settings
 {
     public class DefaultUser
     {
-        public DefaultUser(TitleEnum title, string name,string surname,UserRoleEnum role, string email, string password)
+        public DefaultUser(TitleEnum title, string name,string surname,UserRoleEnum role,DepartmentEnum dep, string email, string password)
         {
             Title = title;
             FirstName = name;
@@ -16,6 +16,7 @@ namespace PromotionsWebApp.Domain.Settings
             Email = email;
             Password = password;
             Role = role;
+            Department = dep;
         }
         public TitleEnum Title { get; set; }
         public string FirstName { get; set; }

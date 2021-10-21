@@ -1,71 +1,167 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-}
-
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  font-size: 14px;
-}
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
-}
-
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+﻿/*make footer stick stop bottom*/
 body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+
+main {
+    flex: 1 0 auto;
+}
+
+.input-field label {
+    color: black;
+}
+
+/*Page Loader*/
+.preloader-background {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee;
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#page-overlay {
+    background: none repeat scroll 0 0 black;
+    position: fixed;
+    display: block;
+    opacity: 0.5;
+    z-index: 999999999999;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+}
+/*Employee Pointer change on Button Hover*/
+a:hover {
+    cursor: pointer;
+}
+
+/*select Validation*/
+select[required] {
+    display: inline;
+    height: 0;
+    padding: 0;
+    width: 0;
+}
+
+.select-wrapper span.caret {
+    height: 40px !important;
+}
+
+/* Rules for sizing the icon. */
+.material-icons.md-18 {
+    font-size: 18px;
+}
+
+.material-icons.md-24 {
+    font-size: 24px;
+}
+
+.material-icons.md-36 {
+    font-size: 36px;
+}
+
+.material-icons.md-48 {
+    font-size: 48px;
+}
+
+/* Rules for using icons as black on a light background. */
+.material-icons.md-dark {
+    color: rgba(0, 0, 0, 0.54);
+}
+
+    .material-icons.md-dark.md-inactive {
+        color: rgba(0, 0, 0, 0.26);
+    }
+
+/* Rules for using icons as white on a dark background. */
+.material-icons.md-light {
+    color: rgba(255, 255, 255, 1);
+}
+
+    .material-icons.md-light.md-inactive {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+.matIcon {
+    line-height: 50px;
+}
+
+
+.material-icons {
+    display: inline-flex;
+    vertical-align: top;
+}
+
+/*Div with border*/
+.divWithBorder {
+    border: 1px solid #000;
+}
+
+    .divWithBorder h1 {
+        text-align: center;
+        margin-top: -10px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 15px;
+    }
+
+        .divWithBorder h1 span {
+            background-color: white;
+        }
+
+.paged-element {
+    text-align: center;
+}
+
+    .paged-element h2 {
+        background-color: #e2e2e2;
+        height: 100px;
+        line-height: 100px;
+    }
+
+
+
+.paginationNav {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+    .paginationNav a {
+        display: inline-block;
+        color: #ffffff;
+        margin: 0 auto;
+        height: 46px;
+        width: 46px;
+        text-align: center;
+        line-height: 46px;
+        margin-right: 1px;
+        background-color: #2c2c2c;
+    }
+
+        .paginationNav a .active {
+            background-color: #0068BB;
+        }
+
+
+
+    .paginationNav span {
+        padding: 0 .5em;
+        font-style: italic;
+    }
+
+.collapsible-secondary {
+    position: absolute;
+    right: 0;
+}
+
+.collapsible-header {
+    position: relative;
 }

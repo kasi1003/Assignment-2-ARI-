@@ -12,6 +12,7 @@ using PromotionsWebApp.Core.Configurations;
 using PromotionsWebApp.Core.Data;
 using PromotionsWebApp.Core.Interfaces;
 using PromotionsWebApp.Core.Repositories;
+using PromotionsWebApp.Domain.Entities;
 using PromotionsWebApp.Domain.Settings;
 using System;
 using System.Collections.Generic;
@@ -38,8 +39,17 @@ namespace PromotionsWebApp
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<pContext>();
+            services.AddIdentity<User, IdentityRole>(options =>
+            {
+                // password settings chosen due to NIST SP 800-63
+                options.Password.RequiredLength = 8; // personally i'd prefer to see 10+
+                options.Password.RequiredUniqueChars = 0;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+             .AddEntityFrameworkStores<pContext>();
 
             //Add Dependencies
             var emailMetadata = Configuration.GetSection("EmailMetadata").Get<EmailMetadata>();
@@ -54,7 +64,11 @@ namespace PromotionsWebApp
             {
                 options.AutomaticAuthentication = false;
             });
-            
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ShowUserDepartmentPolicy",
+                     policy => policy.RequireRole("Staff","Dean","HOD"));
+            });
             services.AddControllersWithViews();
         }
 
@@ -86,7 +100,6 @@ namespace PromotionsWebApp
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
             });
         }
     }

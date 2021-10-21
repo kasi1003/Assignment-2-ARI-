@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PromotionsWebApp.Core.Interfaces;
+using PromotionsWebApp.Domain.Abstract;
 using PromotionsWebApp.Domain.Entities;
 using PromotionsWebApp.Domain.Settings;
 using PromotionsWebApp.Models;
+using PromotionsWebApp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,19 +21,21 @@ namespace PromotionsWebApp.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUserRepository _repo;
+        private readonly IRepository<Staff> _staffRepo;
         private readonly ILogger<AccountController> _logger;
         private readonly IEmailSender _emailSender;
         public AccountController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             ILogger<AccountController> logger, IUserRepository repo,
-            IEmailSender emailSender)
+            IEmailSender emailSender, IRepository<Staff> staffRepo)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
             _repo = repo;
+            _staffRepo = staffRepo;
         }
 
         [HttpGet]
@@ -118,22 +122,38 @@ namespace PromotionsWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string currentFilter = null,
+                                                string searchString = null,
+                                                int? pageNumber = null)
         {
             if (User.IsInRole("Admin"))
             {
                 IEnumerable<User> users = _userManager.Users.AsEnumerable();
                 List<UserVM> userList = new List<UserVM>();
+
+                if (searchString != null)
+                {
+                    pageNumber = 1;
+                }
+                else
+                {
+                    searchString = currentFilter;
+                }
+                ViewData["CurrentFilter"] = searchString;               
                 foreach (User user in users)
                 {
                     if (!user.isDeleted)
                     {
-                        userList.Add(new UserVM(user.Id, user.FirstName, user.LastName, user.Role, user.Department, user.Email));
+                        userList.Add(new UserVM(user.Id,user.Title, user.FirstName, user.LastName, user.Role, 
+                            user.Department, user.Email,user.ProfileImage));
                     }
-
+                }
+                if (!String.IsNullOrEmpty(searchString))
+                {
+                    userList = userList.Where(s => s.ToUserString().ToUpper().Contains(searchString.ToUpper())).ToList();
                 }
                 UsersVM model = new UsersVM();
-                model.Users = userList.AsEnumerable();
+                model.Users = new PaginatedList<UserVM>(userList.OrderBy(x => x.ToUserString()).ToList(), pageNumber ?? 1, 7);
                 string toastMessage = "";
                 if (TempData.ContainsKey("Toast"))
                     toastMessage = TempData["Toast"].ToString();
@@ -175,9 +195,8 @@ namespace PromotionsWebApp.Controllers
                     return View(model);
 
                 //add user to system
-                var username = model.FirstName.Substring(0, 1) + model.Surname;
-                var user = new User(defaultUser.Title, defaultUser.FirstName, defaultUser.LastName,
-                                defaultUser.Role, defaultUser.Email);
+                var user = new User(model.Title, model.FirstName, model.Surname,
+                                model.Role,model.Department, model.Email);
                 var users = await _userManager.FindByEmailAsync(user.Email);
                 if (users != null)
                 {
@@ -203,9 +222,14 @@ namespace PromotionsWebApp.Controllers
                         if (im.Succeeded)
                         {
                             //Todo: send email here to user with details
-                            var token = await _userManager.GeneratePasswordResetTokenAsync(createdUser);
-                            var link = Url.Action("Login", "Account", new { }, Request.Scheme);
-                            await _emailSender.SendNewUserDetails(user.Email, user.UserName, model.Password, link);
+                            //var token = await _userManager.GeneratePasswordResetTokenAsync(createdUser);
+                            //var link = Url.Action("Login", "Account", new { }, Request.Scheme);
+                            //await _emailSender.SendNewUserDetails(user.Email, user.UserName, model.Password, link);
+                            if(user.Role == UserRoleEnum.Staff)
+                            {
+                                Staff newStaff = new Staff(user.Id, user);
+                                await _staffRepo.Add(newStaff);
+                            }                            
                         }
                         else
                         {
@@ -266,12 +290,13 @@ namespace PromotionsWebApp.Controllers
                 model = new UserVM
                 {
                     Id = user.Id,
+                    Title = user.Title,
+                    ProfileImage = user.ProfileImage,
                     FirstName = user.FirstName,
-                    Surname = user.Surname,
+                    Surname = user.LastName,
                     Email = user.Email,
                     Role = user.Role,
                     Department = user.Department,
-                    Username = user.UserName,
                     Password = null
                 };
 
@@ -312,7 +337,7 @@ namespace PromotionsWebApp.Controllers
                     throw exception;
                 }
                 user.FirstName = model.FirstName;
-                user.Surname = model.Surname;
+                user.LastName = model.Surname;
                 if (User.IsInRole("Master"))
                 {
                     user.Role = model.Role;
@@ -381,13 +406,18 @@ namespace PromotionsWebApp.Controllers
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId);              
                 user.Email = "email@email.com";
                 user.UserName = "Deleted";
                 user.FirstName = "Deleted";
-                user.Surname = "Deleted";
+                user.LastName = "Deleted";
                 user.isDeleted = true;
-                await _userRepository.Delete(user);
+                await _repo.Delete(user);
+                if (user.Role == UserRoleEnum.Staff)
+                {
+                    Staff staff = await _staffRepo.GetSingle(x => x.UserId == userId);
+                    await _staffRepo.Delete(staff.Id);
+                }
                 TempData["Toast"] = "User has been successfully been deleted.";
             }
             catch (Exception ex)
@@ -398,45 +428,6 @@ namespace PromotionsWebApp.Controllers
             return RedirectToAction(nameof(AccountController.Index), "Account");
         }
 
-        [AllowAnonymous]
-        public IActionResult ForgotUsername()
-        {
-            ForgotLoginVM model = new ForgotLoginVM();
-            return View(model);
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> ForgotUsername(ForgotLoginVM model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-            try
-            {
-                var user = await _userManager.FindByEmailAsync(model.EmailAddress);
-                if (user == null)
-                {
-                    ModelState.AddModelError(string.Empty, "User does not exist in system.");
-                    return View(model);
-                }
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var link = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme);
-                await _emailSender.SendLoginDetails(model.EmailAddress, user.UserName, link);
-                return RedirectToAction("ForgotUsernameConfirmation");
-            }
-            catch (Exception ex)
-            {
-                if (!ModelState.IsValid)
-                    return View(model);
-                return RedirectToAction("ForgotUsernameConfirmation");
-            }
-        }
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ForgotUsernameConfirmation()
-        {
-            return View();
-        }
 
         [HttpGet]
         [AllowAnonymous]
@@ -520,24 +511,8 @@ namespace PromotionsWebApp.Controllers
         {
             return View();
         }
-        #region Helpers
-        private Task<User> GetCurrentUserAsync()
-        {
-            return _userManager.GetUserAsync(HttpContext.User);
-        }
 
-        private IActionResult RedirectToLocal(string returnUrl)
-        {
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            else
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-        }
 
-        #endregion
+        
     }
 }

@@ -13,11 +13,11 @@ namespace PromotionsWebApp.Core.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        public UserRepository(UserManager<User> userManager, SignInManager<User> signInManager)
+        //private readonly SignInManager<User> _signInManager;
+        public UserRepository(UserManager<User> userManager)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
+            //_signInManager = signInManager;
         }
 
         public IQueryable<User> Get() => _userManager.Users;
@@ -50,9 +50,9 @@ namespace PromotionsWebApp.Core.Repositories
             return await _userManager.UpdateAsync(user);
         }
 
-        public UserManager<User> GetUserManager()
-        {
-            return _userManager;
-        }
+        //public UserManager<User> GetUserManager()
+        //{
+        //    return _userManager;
+        //}
     }
 }

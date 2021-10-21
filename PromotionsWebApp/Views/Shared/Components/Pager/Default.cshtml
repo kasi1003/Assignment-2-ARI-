@@ -1,0 +1,15 @@
+﻿@model PromotionsWebApp.ViewComponents.PagerViewComponent.PagerViewModel
+<div>
+    <a asp action="@Model.linkUrl" asp-controller="@Model.linkArea"
+       asp-route-pageNumber="@Model.prevPageNumber"
+       asp-route-currentFilter="@Model.searchFilter"
+       class="btn btn-small @Model.prevDisabled">
+        Previous
+    </a>
+    <a asp-action="@Model.linkUrl" asp-controller="@Model.linkArea"
+       asp-route-pageNumber="@Model.nextPageNumber"
+       asp-route-currentFilter="@Model.searchFilter"
+       class="btn btn-small @Model.nextDisabled">
+        Next
+    </a>
+</div>

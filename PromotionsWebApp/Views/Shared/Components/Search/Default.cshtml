@@ -1,0 +1,9 @@
+﻿@model PromotionsWebApp.ViewComponents.SearchViewComponent.SearchViewModel
+<div>
+    <form asp-action="@Model.linkUrl" asp-controller="@Model.linkArea" method="get">
+        <input type="text" name="searchString" placeholder="Search.." value="@Model.searchFilter" autocomplete="off" />
+        <input type="submit" value="Search" class="btn btn-small green" /> |
+        <a asp-action="@Model.linkUrl" asp-controller="@Model.linkArea">Back to Full List</a>
+    </form>
+
+</div>

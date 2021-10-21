@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PromotionsWebApp.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,6 @@ namespace PromotionsWebApp.Models
     {
         public UsersVM() { }
 
-        public IEnumerable<UserVM> Users { get; set; }
+        public PaginatedList<UserVM> Users { get; set; }
     }
 }

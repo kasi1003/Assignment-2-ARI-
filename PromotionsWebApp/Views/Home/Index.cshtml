@@ -1,8 +1,67 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Dashboard";
 }
+<div class="row">
+    <div class="row">
+        <h3 class="center-align">
+            Promotions Web App
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col s8 offset-s2">
+            <a asp-action="Index" asp-controller="Account">
+                <div class="card-panel green center center-align">
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+                    <span id="" class="material-icons md-dark md-24">
+                        manage_accounts
+                    </span>
+                    <span class="card-title grey-text text-darken-4">Users</span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s8 offset-s2">
+            <a asp-action="Index" asp-controller="Staff">
+                <div class="card-panel green center center-align">
+
+                    <span id="" class="material-icons md-dark md-24">
+                        local_atm
+                    </span>
+                    <span class="card-title grey-text text-darken-4">Staff</span>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s8 offset-s2">
+            <a asp-action="Index" asp-controller="Promotions">
+                <div class="card-panel green center center-align">
+
+                    <span id="" class="material-icons md-dark md-24">
+                        store
+                    </span>
+                    <span class="card-title grey-text text-darken-4">Promotions</span>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s8 offset-s2">
+            <a asp-action="Index" asp-controller="Settings">
+                <div class="card-panel green center center-align">
+
+                    <span id="" class="material-icons md-dark md-24">
+                        manage_accounts
+                    </span>
+                    <span class="card-title grey-text text-darken-4">Settings</span>
+                </div>
+            </a>
+
+        </div>
+    </div>
 </div>

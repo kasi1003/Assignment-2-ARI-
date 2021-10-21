@@ -14,9 +14,12 @@ namespace PromotionsWebApp.Models
             Role = 0;
             Department = 0;
         }
-        public UserVM(string id,string name, string surname, UserRoleEnum role,DepartmentEnum dep, string email)
+        public UserVM(string id,TitleEnum title,string name, string surname, UserRoleEnum role,
+            DepartmentEnum dep, string email,byte[] profileImage)
         {
             Id = id;
+            Title = title;
+            ProfileImage = profileImage;
             FirstName = name;
             Surname = surname;
             Role = role;
@@ -24,6 +27,9 @@ namespace PromotionsWebApp.Models
             Email = email;
         }
         public string Id { get; set; }
+        [Required]
+        public TitleEnum Title { get; set; }
+        public byte[] ProfileImage { get; set; }
         [Required]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
@@ -35,6 +41,7 @@ namespace PromotionsWebApp.Models
         public DepartmentEnum Department { get; set; }
         [Required]
         public string Email { get; set; }
+        public string Password { get; set; }
 
         public override string ToString()
         {
@@ -42,7 +49,7 @@ namespace PromotionsWebApp.Models
         }
         public string ToUserString()
         {
-            return FirstName + " " + Surname;
+            return Title.ToString()+". "+ FirstName + " " + Surname;
         }
     }
 }

@@ -9,11 +9,10 @@ namespace PromotionsWebApp.Domain.Abstract
     {
         Admin = 1,
         Dean,
-        Committee,
+        IFEC,
         HOD,
-        HR,
+        PSPC,
         Staff,
-        Supervisor,
         VC
     }
 }

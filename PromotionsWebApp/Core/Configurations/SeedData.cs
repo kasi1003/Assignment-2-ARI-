@@ -14,8 +14,13 @@ namespace PromotionsWebApp.Core.Configurations
         {
             return new List<DefaultUser>
             {
-                new DefaultUser("SystemAdmin","",UserRoleEnum.Master,DepartmentEnum.IT,"master@email.com","iamsystemadmin")
-            };
+                new DefaultUser(TitleEnum.Mr,"System","Admin",UserRoleEnum.Admin,DepartmentEnum.ComputingAndInformatics,"admin@email.com","iAmSystemAdmin"),
+                new DefaultUser(TitleEnum.Mr,"John","Snow",UserRoleEnum.HOD,DepartmentEnum.ComputingAndInformatics,"johnsnow@email.com","promotion1"),
+                new DefaultUser(TitleEnum.Mr,"John","Wick",UserRoleEnum.Dean,DepartmentEnum.ComputingAndInformatics,"johnwick@email.com","promotion1"),
+                new DefaultUser(TitleEnum.Mr,"Clark","Kent",UserRoleEnum.IFEC,DepartmentEnum.ComputingAndInformatics,"clarkkent@email.com","promotion1"),
+                new DefaultUser(TitleEnum.Mr,"Barry","Allen",UserRoleEnum.PSPC,DepartmentEnum.ComputingAndInformatics,"barryallen@email.com","promotion1"),
+                new DefaultUser(TitleEnum.Mr, "Bruce", "Wayne", UserRoleEnum.VC, DepartmentEnum.ComputingAndInformatics, "brucewayne@email.com", "promotion1")
+            }; 
         }
         //public static List<Vendor> VendorSeed()
         //{

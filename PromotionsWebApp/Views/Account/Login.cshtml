@@ -1,0 +1,50 @@
+﻿
+@{
+    ViewData["Title"] = "Login";
+}
+
+@using PromotionsWebApp.Domain.Entities
+@using PromotionsWebApp.Models
+@model LoginVM
+<form asp-action="Login" asp-controller="Account" method="post" role="form" class="center-align">
+    <input type="hidden" asp-for="@Model.ReturnUrl" />
+    <div class="row z-depth-2">
+        <h4 class="center-align">Login</h4>
+        <div class="divider"></div>
+        <div class="red-text" asp-validation-summary="All"></div>
+        <div class="row">
+            <div class="col s12 l8 m6 offset-l2 offset-m2">
+                <div class="row">
+                    <div class="input-field col s12">
+                        @Html.LabelFor(model => model.Username)
+                        <input type="text" class="validate" asp-for="Username" />
+                        <span asp-validation-for="Username" class="red-text text-darken-2" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        @Html.LabelFor(model => model.Password)
+                        <input type="password" class="validate" asp-for="Password" />
+                        <span asp-validation-for="Password" class="red-text text-darken-2" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s6 m6 l6">
+                        <a asp-action="ForgotPassword">Forgot Password</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12 center-align ">
+                <button type="submit" name="cmdButton" class="btn waves-effect waves-light btn-large green lighten-1">
+                    <span class="material-icons md-dark md-24 matIcon">
+                        login
+                    </span>
+                    <span class="black-text">Login</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

@@ -15,6 +15,6 @@ namespace PromotionsWebApp.Core.Interfaces
         Task<IdentityResult> Create(User user, string password, UserRoleEnum role);
         Task<IdentityResult> Delete(User user);
         Task<IdentityResult> Update(User user);
-        UserManager<User> GetUserManager();
+        //UserManager<User> GetUserManager();
     }
 }
