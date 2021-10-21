@@ -1,10 +1,84 @@
-﻿@{
-    ViewData["Title"] = "Staff Page";
+﻿@using PromotionsWebApp.Domain.Entities
+@using PromotionsWebApp.Models
+@using PromotionsWebApp.Utilities
+@using PromotionsWebApp.ViewComponents
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@model StaffsVM
+@{
+    ViewData["Title"] = "Staff List";
+    string Search = "";
+    if (ViewData["CurrentFilter"] != null)
+        Search = ViewData["CurrentFilter"].ToString();
+    string LinkUrl = "Index";
+    string LinkArea = "Staff";
+    var prevDisabled = "True";
+    var nextDisabled = "True";
+    var prevPageNr = 1;
+    var nextPageNr = 1;
+    if (Model.Staffs.Count > 0)
+    {
+        prevDisabled = !Model.Staffs.HasPreviousPage ? "disabled" : "";
+        nextDisabled = !Model.Staffs.HasNextPage ? "disabled" : "";
+        prevPageNr = Model.Staffs.PageIndex - 1;
+        nextPageNr = Model.Staffs.PageIndex + 1;
+    }
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
-<div class="section row">
+<div class="row">
+    <h4 class="center-align">Users</h4>
+    <div class="divider"></div>
+    @if (Model.Staffs.Any())
+    {
+        <div class="col s12">
+            @await Component.InvokeAsync("Search", new { model = new SearchViewComponent.SearchViewModel(Search, LinkUrl, LinkArea) })
+            <ul class="collection">
+                @foreach (StaffVM user in Model.Staffs)
+                {
+                    <li class="collection-item avatar">
+                        <img src="data:image;base64,@System.Convert.ToBase64String(user.User.ProfileImage)" width="80" height="80" class="circle">
+                        <span class="Title">
+                            @user.User.ToUserString()
+                        </span>
+                        <p>
+                            Rank: @user.Jobs.Where(x => x.IsCurrent).First().Rank.Name <br />
+                            Deparment: @user.Jobs.Where(x => x.IsCurrent).First().Department.GetEnumDescription()<br />
+                        </p>
+                        <span class="secondary-content">
+                            <a asp-action="Profile" asp-route-userId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Profile"><i class="material-icons">edit</i></a>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="col s12 m12 l12">
+            <div class="card-panel blue darken-2 center-align">
+                <span class="white-text">
+                    No Staff are currently existing in the system.
+                </span>
+            </div>
+        </div>
+    }
+    <div class="center-align">
+        @await Component.InvokeAsync("Pager", new
+        {
+            model = new PagerViewComponent.PagerViewModel
+                        (prevPageNr, nextPageNr, Search, LinkUrl, LinkArea, nextDisabled, prevDisabled)
+        })
     </div>
+    <br />
+    <br />
+    <div class="row">
+        <div class="input-field col s12 center-align ">
+            <a asp-action="Index" asp-controller="Home" class="btn waves-effect waves-light btn-large green lighten-1">
+                <span class="material-icons md-dark md-24 matIcon">
+                    keyboard_return
+                </span>
+                <span class="black-text">Back</span>
+            </a>
+        </div>
+    </div>
+</div>

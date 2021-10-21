@@ -16,7 +16,7 @@ namespace PromotionsWebApp.Core.Data
         }
         public DbSet<Document> Document { get; set; }
         public DbSet<DocumentStore> DocumentStore { get; set; }
-        public DbSet<Job> Job { get; set; }
+        //public DbSet<Job> Job { get; set; }
         public DbSet<Rank> Rank { get; set; }
         public DbSet<Staff> Staff { get; set; }
         public DbSet<StaffJob> StaffJob { get; set; }
