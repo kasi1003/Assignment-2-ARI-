@@ -37,6 +37,10 @@ namespace PromotionsWebApp.Domain.Entities
         public UserRoleEnum Role { get; set; }
         public bool PasswordReset { get; set; }
         public bool isDeleted { get; set; }
+        public override string ToString()
+        {
+            return Title.ToString() + ". " + FirstName + " " + Surname;
+        }
         private byte[] GenerateAvatarImage()
         {
             //first, create a dummy bitmap just to get a graphics object  

@@ -36,16 +36,17 @@
                 @foreach (StaffVM user in Model.Staffs)
                 {
                     <li class="collection-item avatar">
-                        <img src="data:image;base64,@System.Convert.ToBase64String(user.User.ProfileImage)" width="80" height="80" class="circle">
+                        <img src="data:image;base64,@System.Convert.ToBase64String(user.ProfileImage)" width="80" height="80" class="circle">
                         <span class="Title">
-                            @user.User.ToUserString()
+                            @user.Username
                         </span>
                         <p>
-                            Rank: @user.Jobs.Where(x => x.IsCurrent).First().Rank.Name <br />
-                            Deparment: @user.Jobs.Where(x => x.IsCurrent).First().Department.GetEnumDescription()<br />
+                            Rank: @user.StaffJob <br />
+                            Deparment: @user.Department.GetEnumDescription()<br />
+                            Date Employed: @user.DateEmployed
                         </p>
                         <span class="secondary-content">
-                            <a asp-action="Profile" asp-route-userId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Profile"><i class="material-icons">edit</i></a>
+                            <a asp-action="Profile" asp-route-staffId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Profile"><i class="material-icons">edit</i></a>
                         </span>
                     </li>
                 }

@@ -227,8 +227,10 @@ namespace PromotionsWebApp.Controllers
                             //await _emailSender.SendNewUserDetails(user.Email, user.UserName, model.Password, link);
                             if(user.Role == UserRoleEnum.Staff)
                             {
-                                Staff newStaff = new Staff(user.Id, user);
+                                Staff newStaff = new Staff(user.Id);
+                                newStaff.Username = user.Title.ToString() + ". " + user.FirstName + " " + user.LastName;
                                 await _staffRepo.Add(newStaff);
+                                return RedirectToAction("CreateStaff", "Staff", new { staffId = newStaff.Id });
                             }                            
                         }
                         else
@@ -268,6 +270,7 @@ namespace PromotionsWebApp.Controllers
             }
             return RedirectToAction(nameof(AccountController.Index), "Account");
         }
+        
 
         [HttpGet]
         public async Task<IActionResult> Profile([FromQuery] string userId)
@@ -338,15 +341,21 @@ namespace PromotionsWebApp.Controllers
                 }
                 user.FirstName = model.FirstName;
                 user.LastName = model.Surname;
-                if (User.IsInRole("Master"))
+                if (User.IsInRole("Admin"))
                 {
                     user.Role = model.Role;
                     user.Department = model.Department;
                 }
                 user.Email = model.Email;
-                var username = model.FirstName.Substring(0, 1) + model.Surname;
-                user.UserName = username.ToUpper();
+                user.UserName = model.Email;
                 var users = await _userManager.FindByEmailAsync(user.Email);
+                if (user.Role == UserRoleEnum.Staff)
+                {
+                    var staffList = await _staffRepo.GetAll();
+                    var staff = staffList.Where(x => x.UserId == user.Id).First();
+                    staff.Username = user.Title.ToString() + ". " + user.FirstName + " " + user.LastName;
+                    await _staffRepo.Update(staff);
+                }
                 if (users != null && users.Id != user.Id)
                 {
                     if (!users.isDeleted)
@@ -512,7 +521,7 @@ namespace PromotionsWebApp.Controllers
             return View();
         }
 
-
+        //change profile image
         
     }
 }

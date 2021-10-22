@@ -15,6 +15,6 @@ namespace PromotionsWebApp.Domain.Entities
         public virtual Rank Rank { get; set; }
         public bool IsCurrent { get; set; }
         public DateTime DateEmployed { get; set; }
-        public DateTime DateLeft { get; set; }
+        public DateTime? DateLeft { get; set; }
     }
 }

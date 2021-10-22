@@ -130,16 +130,13 @@ namespace PromotionsWebApp.Core.Configurations
                         {
                             await CreateDefaultUserAndRoleForApplication(userManager, roleManager);
                         }
-                        //if(!context.Vendor.Any())
-                        //{
-                        //    changed = true;
-                        //    await context.Vendor.AddRangeAsync(SeedData.VendorSeed());
-
-                        //}
+                        if(!context.Rank.Any())
+                        {
+                            changed = true;
+                            await context.Rank.AddRangeAsync(SeedData.RankSeed());
+                        }
+                        
                     }).Wait();
-                   
-
-
                     if (changed)
                         context.SaveChanges();
                 }
