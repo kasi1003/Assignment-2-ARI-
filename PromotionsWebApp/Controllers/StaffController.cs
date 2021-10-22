@@ -81,16 +81,20 @@ namespace PromotionsWebApp.Controllers
                         UserId = staff.UserId,
                         ProfileImage = staff.User.ProfileImage
                     };
-                    foreach (StaffJob jobs in staff.Jobs)
+                    if(staff.Jobs!=null && staff.Jobs.Any())
                     {
-                        if(jobs.IsCurrent)
+                        foreach (StaffJob jobs in staff.Jobs)
                         {
-                            staffToAdd.StaffJob = jobs.Rank.Name;
-                            staffToAdd.Department = jobs.Department;
-                            staffToAdd.DateEmployed = jobs.DateEmployed;
-                            break;
+                            if (jobs.IsCurrent)
+                            {
+                                staffToAdd.StaffJob = jobs.Rank.Name;
+                                staffToAdd.Department = jobs.Department;
+                                staffToAdd.DateEmployed = jobs.DateEmployed;
+                                break;
+                            }
                         }
                     }
+                   
                     list.Add(staffToAdd);
                 }
                 model.Staffs = new PaginatedList<StaffVM>(list.OrderBy(x => x.Username).ToList(), pageNumber ?? 1, 7);
@@ -182,6 +186,64 @@ namespace PromotionsWebApp.Controllers
         }
 
         //Profile
+        [HttpGet]
+        public async Task<IActionResult> Profile(int staffId)
+        {
+            StaffProfileVM model = new StaffProfileVM();
+            try
+            {
+                Staff staff = await _staffRepo.GetSingle(x => x.Id == staffId, x => x.Qualifications, x => x.Jobs);
+                User user = await _userManager.FindByIdAsync(staff.UserId);
+                model.Id = staff.Id;
+                model.ProfileImage = user.ProfileImage;
+                model.UserId = staff.UserId;
+                model.Username = user.ToString();
+                model.Qualifications = new List<QualificationVM>();
+                model.Jobs = new List<StaffJobVM>();
+                if(staff.Qualifications!=null || staff.Qualifications.Any())
+                {
+                    foreach(Qualification q in staff.Qualifications)
+                    {
+                        QualificationVM quali = new QualificationVM
+                        {
+                            Id = q.Id,
+                            StaffId = q.StaffId,
+                            Name = q.Name,
+                            Institution = q.Institution,
+                            NQFLevel = q.NQFLevel,
+                            CertificateDocumentId = q.CertificateDocumentId,
+                            YearObtained = q.YearObtained
+                        };
+                        model.Qualifications.Add(quali);
+                    }
+                    
+                }
+                if (staff.Jobs != null || staff.Jobs.Any())
+                {
+                    foreach(StaffJob job in staff.Jobs)
+                    {
+                        StaffJobVM j = new StaffJobVM
+                        {
+                            StaffJobId = job.Id,
+                            StaffId = job.StaffId,
+                            DateEmployed = job.DateEmployed,
+                            Department = job.Department,
+                            IsCurrent = job.IsCurrent,
+                            Name = job.Rank.Name,
+                            DateLeft = job.DateLeft
+                        };
+                        model.Jobs.Add(j);
+                    }
+                }
+            }
+            catch(Exception rx)
+            {
+
+            }
+            
+            return View(model);
+        }
+
         //Add Resume
         //Add Qualification
     }

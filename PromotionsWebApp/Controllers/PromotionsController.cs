@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PromotionsWebApp.Controllers
 {
-    public class PromotionController
+    public class PromotionsController
     {
     }
 }

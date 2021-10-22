@@ -221,14 +221,13 @@ namespace PromotionsWebApp.Controllers
                         var im = await _userManager.AddToRoleAsync(user, user.Role.ToString());
                         if (im.Succeeded)
                         {
-                            //Todo: send email here to user with details
-                            //var token = await _userManager.GeneratePasswordResetTokenAsync(createdUser);
-                            //var link = Url.Action("Login", "Account", new { }, Request.Scheme);
-                            //await _emailSender.SendNewUserDetails(user.Email, user.UserName, model.Password, link);
+                            //send email here to user with details
+                            var token = await _userManager.GeneratePasswordResetTokenAsync(createdUser);
+                            var link = Url.Action("Login", "Account", new { }, Request.Scheme);
+                            await _emailSender.SendNewUserDetails(user.Email, user.UserName, model.Password, link);
                             if(user.Role == UserRoleEnum.Staff)
                             {
-                                Staff newStaff = new Staff(user.Id);
-                                newStaff.Username = user.Title.ToString() + ". " + user.FirstName + " " + user.LastName;
+                                Staff newStaff = new Staff(user.Id,user);
                                 await _staffRepo.Add(newStaff);
                                 return RedirectToAction("CreateStaff", "Staff", new { staffId = newStaff.Id });
                             }                            
@@ -353,7 +352,6 @@ namespace PromotionsWebApp.Controllers
                 {
                     var staffList = await _staffRepo.GetAll();
                     var staff = staffList.Where(x => x.UserId == user.Id).First();
-                    staff.Username = user.Title.ToString() + ". " + user.FirstName + " " + user.LastName;
                     await _staffRepo.Update(staff);
                 }
                 if (users != null && users.Id != user.Id)

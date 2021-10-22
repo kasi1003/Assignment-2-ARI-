@@ -39,7 +39,7 @@ namespace PromotionsWebApp.Domain.Entities
         public bool isDeleted { get; set; }
         public override string ToString()
         {
-            return Title.ToString() + ". " + FirstName + " " + Surname;
+            return Title.ToString() + ". " + FirstName + " " + LastName;
         }
         private byte[] GenerateAvatarImage()
         {

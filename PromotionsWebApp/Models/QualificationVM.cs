@@ -14,6 +14,6 @@ namespace PromotionsWebApp.Models
         public int YearObtained { get; set; }
         public int CertificateDocumentId { get; set; }
         public int NQFLevel { get; set; }
-        public virtual DocumentVM CertificateDocument { get; set; }
+        //public virtual DocumentVM CertificateDocument { get; set; }
     }
 }

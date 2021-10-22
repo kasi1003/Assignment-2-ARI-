@@ -12,10 +12,9 @@ namespace PromotionsWebApp.Models
         public int StaffId { get; set; }
         public virtual StaffVM Staff { get; set; }
         public DepartmentEnum Department { get; set; }
-        public int RankId { get; set; }
-        public virtual RankVM Rank { get; set; }
+        public string Name { get; set; }
         public bool IsCurrent { get; set; }
         public DateTime DateEmployed { get; set; }
-        public DateTime DateLeft { get; set; }
+        public DateTime? DateLeft { get; set; }
     }
 }
