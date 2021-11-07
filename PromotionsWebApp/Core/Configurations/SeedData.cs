@@ -10,16 +10,168 @@ namespace PromotionsWebApp.Core.Configurations
 {
     public static class SeedData
     {
+        public static List<Faculty> FacultySeed()
+        {
+            return new List<Faculty>
+            { 
+                new Faculty
+                {
+                    Name = "Faculty of Computer and Informatics",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Informatics"
+                        },
+                        new Department
+                        {
+                            Name = "Computer Science"
+                        }
+                    }
+                },
+                 new Faculty
+                {
+                    Name = "Faculty of Engineering",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Mechanical and Marine Engineering"
+                        },
+                        new Department
+                        {
+                            Name = "Electrical and Computer Engineering"
+                        },
+                        new Department
+                        {
+                            Name = "Civil and Environmental Engineering"
+                        },
+                        new Department
+                        {
+                            Name = "Mining and Process Engineering"
+                        }
+                    }
+                },
+                  new Faculty
+                {
+                    Name = "Health and Applied Sciences",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Natural and Applied Sciences"
+                        },
+                        new Department
+                        {
+                            Name = "Health Sciences"
+                        },
+                        new Department
+                        {
+                            Name = "Mathematics and Statistics"
+                        }
+                    }
+                },
+                   new Faculty
+                {
+                    Name = "Faculty of Human Sciences",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Communication"
+                        },
+                        new Department
+                        {
+                            Name = "Technical and Vocational Education and Training"
+                        },
+                        new Department
+                        {
+                            Name = "Social Sciences"
+                        }
+                    }
+                },
+                    new Faculty
+                {
+                    Name = "Faculty of Management Sciences",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Management"
+                        },
+                        new Department
+                        {
+                            Name = "Marketing and Logistics"
+                        },
+                        new Department
+                        {
+                            Name = "Accounting, Economics and Finance"
+                        }
+                    }
+                },
+                     new Faculty
+                {
+                    Name = "Faculty of Natural Resources and Spatial Sciences",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Architecture and Spatial Planning"
+                        },
+                        new Department
+                        {
+                            Name = "Agriculture and Natural Resources Sciences"
+                        },
+                        new Department
+                        {
+                            Name= "Geo-Spatial Sciences and Technology"
+                        },
+                        new Department
+                        {
+                            Name = "Land and Property Sciences"
+                        }
+                    }
+                },
+                       new Faculty
+                {
+                    Name = "Faculty of Accounting and Economics",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Accounting and Economics"
+                        },
+                    }
+                },
+                        new Faculty
+                {
+                    Name = "Harold Pupkewitz Graduate School of Business",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Harold Pupkewitz Graduate School of Business"
+                        },
+                    }
+                },
+                         new Faculty
+                {
+                    Name = "Centre for Open and Lifelong Learning",
+                    Departments = new List<Department>
+                    {
+                        new Department
+                        {
+                            Name= "Centre for Open and Lifelong Learning"
+                        },
+                    }
+                },
+            };
+        }
         public static List<DefaultUser> DefaultUserSeed()
         {
             return new List<DefaultUser>
             {
-                new DefaultUser(TitleEnum.Mr,"System","Admin",UserRoleEnum.Admin,DepartmentEnum.ComputingAndInformatics,"admin@email.com","iAmSystemAdmin"),
-                new DefaultUser(TitleEnum.Mr,"John","Snow",UserRoleEnum.HOD,DepartmentEnum.ComputingAndInformatics,"johnsnow@email.com","promotion1"),
-                new DefaultUser(TitleEnum.Mr,"John","Wick",UserRoleEnum.Dean,DepartmentEnum.ComputingAndInformatics,"johnwick@email.com","promotion1"),
-                new DefaultUser(TitleEnum.Mr,"Clark","Kent",UserRoleEnum.IFEC,DepartmentEnum.ComputingAndInformatics,"clarkkent@email.com","promotion1"),
-                new DefaultUser(TitleEnum.Mr,"Barry","Allen",UserRoleEnum.PSPC,DepartmentEnum.ComputingAndInformatics,"barryallen@email.com","promotion1"),
-                new DefaultUser(TitleEnum.Mr, "Bruce", "Wayne", UserRoleEnum.VC, DepartmentEnum.ComputingAndInformatics, "brucewayne@email.com", "promotion1")
+                new DefaultUser(TitleEnum.Mr,"System","Admin",UserRoleEnum.Admin,"admin@email.com","iAmSystemAdmin")
             }; 
         }
         public static List<Rank> RankSeed()
@@ -107,14 +259,7 @@ namespace PromotionsWebApp.Core.Configurations
                 10)
             };
         }
-        //public static List<Vendor> VendorSeed()
-        //{
-        //    return new List<Vendor>
-        //    {
-        //        new Vendor("Hishiko Technologies", "dhishiko@gmail.com", "Tulonga Hishiko","0815542840"),
-        //        new Vendor("Tuliza Inc", "dhishiko@gmail.com", "Tulonga Hishiko","0815542840")
-        //    };
-        //}
+
        
     }
 }

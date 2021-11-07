@@ -1,0 +1,70 @@
+﻿@model PromotionsWebApp.ViewComponents.UploadDocumentsViewComponent.UploadDocumentsViewModel
+@using PromotionsWebApp.Domain.Abstract
+
+@*Support Document Add Modal*@
+
+@{ 
+    var headerText = "";
+    var modalName = "";
+    switch(Model.UploadType)
+    {
+        case UploadTypeEnum.CV:
+            headerText = "Curriculum Vitae";
+            modalName = "cvModal";
+            break;
+        case UploadTypeEnum.ID:
+            headerText = "Identity Document";
+            modalName = "idModal";
+            break;
+        case UploadTypeEnum.StudentEval:
+            headerText = "Student Evalution Forms";
+            modalName = "seModal";
+            break;
+        case UploadTypeEnum.PeerEval:
+            headerText = "Peer Evaluation Forms";
+            modalName = "peModal";
+            break;
+        case UploadTypeEnum.CommunityService:
+            headerText = "Community Service Forms";
+            modalName = "csModal";
+            break;
+        case UploadTypeEnum.ScholarshipInTeaching:
+            headerText = "Scholarship in Teaching Forms";
+            modalName = "stModal";
+            break;
+    }
+}
+<a href="#@modalName" class="tooltipped modal-trigger" id="uploadSupportBtn" data-position="top" data-tooltip="Upload Support Document">Upload</a>
+<div id="@modalName" class="modal grey lighten-5">
+    <form id="supportForm" asp-action="UploadSupportDocument" asp-controller="Document" method="post" role="form" enctype='multipart/form-data'>
+        <input type="hidden" asp-for="SupportingsDocumentId" id="docId" />
+        <input type="hidden" asp-for="UploadType" />
+        <div class="modal-content">
+            <h2 class="center-align">Upload @headerText</h2>
+            <div class="row">
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="active">Upload Document</Label><br/>
+                        <input type="file" accept="application/pdf" class="validate" asp-for="UploadFile" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="input-field col s8 offset-s2">
+                <a class="btn modal-close waves-effect waves-light btn-large red lighten-1">
+                    <span class="material-icons md-dark md-24 matIcon">
+                        cancel
+                    </span>
+                    <span class="black-text">Cancel</span>
+                </a>
+                <button type="submit" id="submitEducationBtn" class="btn waves-effect waves-light btn-large green lighten-1">
+                    <span class="material-icons md-dark md-24 matIcon">
+                        send
+                    </span>
+                    <span class="black-text">Submit</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,66 @@
+﻿@model PromotionsWebApp.ViewComponents.EducationFormViewComponent.EducationViewModel
+@using PromotionsWebApp.Domain.Abstract
+
+@*Education Add Modal*@
+<a href="#educationModal" class="tooltipped modal-trigger" id="addQualificationBtn" data-position="top" data-tooltip="Add Qualification"><i class="material-icons">add</i></a>
+
+<div id="educationModal" class="modal grey lighten-5">
+    <form id="educationForm" asp-action="UpdateEducation" asp-controller="Staff" method="post" role="form" enctype='multipart/form-data'>
+        <input type="hidden" asp-for="StaffId" id="staffIdInput" />
+        <div class="modal-content">
+            <h2 class="center-align">Add Qualification</h2>
+            <div class="row">
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="active">Name</Label>
+                        <input type="text" class="validate" asp-for="Name" />
+                        <span asp-validation-for="Name" class="red-text text-darken-2" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="active">Institution</Label>
+                        <input type="text" class="validate" asp-for="Institution" />
+                        <span asp-validation-for="Institution" class="red-text text-darken-2" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="active">Year Obtained</Label>
+                        <input type="text" class="validate" asp-for="YearObtained" />
+                        <span asp-validation-for="YearObtained" class="red-text text-darken-2" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="active">NQF Level</Label>
+                        <input type="text" class="validate" asp-for="NQFLevel" />
+                        <span asp-validation-for="NQFLevel" class="red-text text-darken-2" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="active">Qualification Document</Label><br/>
+                        <input type="file" accept="application/pdf" class="validate" asp-for="QualificationDocument" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="input-field col s8 offset-s2">
+                <a class="btn modal-close waves-effect waves-light btn-large red lighten-1">
+                    <span class="material-icons md-dark md-24 matIcon">
+                        cancel
+                    </span>
+                    <span class="black-text">Cancel</span>
+                </a>
+                <button type="submit" id="submitEducationBtn" class="btn waves-effect waves-light btn-large green lighten-1">
+                    <span class="material-icons md-dark md-24 matIcon">
+                        send
+                    </span>
+                    <span class="black-text">Submit</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

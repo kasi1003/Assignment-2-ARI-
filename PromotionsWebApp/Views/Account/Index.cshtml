@@ -1,9 +1,9 @@
 ﻿@using PromotionsWebApp.Domain.Entities
-@using PromotionsWebApp.Models
+@using PromotionsWebApp.Models.Account
 @using PromotionsWebApp.Utilities
 @using PromotionsWebApp.ViewComponents
 @using Microsoft.AspNetCore.Authorization
-@inject IAuthorizationService AuthorizationService
+@using PromotionsWebApp.Domain.Abstract
 @model UsersVM
 @{
     ViewData["Title"] = "Users";
@@ -41,11 +41,15 @@
                             @user.ToUserString()
                         </span>
                         <p>
-                            @if ((await AuthorizationService.AuthorizeAsync(User, "ShowUserDepartmentPolicy")).Succeeded)
-                            {
-                                <span>Deparment: @user.Department.GetEnumDescription()</span><br>
-                            }
                             Role: @user.Role.ToString()
+                            @if (user.Role == UserRoleEnum.Dean || user.Role == UserRoleEnum.HOD)
+                            {
+                                <br/><span>Faculty: @user.Faculty</span>
+                            }
+                            @if (user.Role == UserRoleEnum.HOD)
+                            {
+                                <br/><span>Department: @user.Department</span>
+                            }
                         </p>
                         <span class="secondary-content">
                             <a asp-action="Profile" asp-route-userId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Profile"><i class="material-icons">edit</i></a>

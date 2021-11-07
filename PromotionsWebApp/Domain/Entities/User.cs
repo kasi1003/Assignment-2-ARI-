@@ -14,27 +14,58 @@ namespace PromotionsWebApp.Domain.Entities
     public class User:IdentityUser
     {
         public User() { }
-        public User(TitleEnum title,string name,string surname,UserRoleEnum role,DepartmentEnum dep,
-                    string email)
+        public User(TitleEnum title, string name, string surname, UserRoleEnum role, string email)
         {
             Title = title;
             FirstName = name;
             LastName = surname;
             Role = role;
-            Department = dep;
             Email = email;
             EmailConfirmed = false;
             UserName = email;
             ProfileImage = GenerateAvatarImage();
             PasswordReset = true;
         }
+        public User(TitleEnum title,string name,string surname,UserRoleEnum role,string email,int facId,int depId)
+        {
+            Title = title;
+            FirstName = name;
+            LastName = surname;
+            Role = role;
+            Email = email;
+            EmailConfirmed = false;
+            UserName = email;
+            ProfileImage = GenerateAvatarImage();
+            PasswordReset = true;
+            FacultyId = facId;
+            if (facId == 0)
+            {
+                FacultyId = null;
+            }
+            else
+            {
+                FacultyId = facId;
+            }
+            if (depId==0)
+            {
+                DepartmentId = null;
+            }
+            else
+            {
+                DepartmentId = depId;
+            }
+            
+        }
 
         public TitleEnum Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public byte[] ProfileImage { get; set; }
-        public DepartmentEnum Department { get; set; }
         public UserRoleEnum Role { get; set; }
+        public int? FacultyId { get; set; }
+        public virtual Faculty Faculty { get; set; }
+        public int? DepartmentId { get; set; }
+        public virtual Department Department { get; set; }
         public bool PasswordReset { get; set; }
         public bool isDeleted { get; set; }
         public override string ToString()

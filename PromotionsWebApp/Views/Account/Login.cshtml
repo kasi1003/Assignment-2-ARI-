@@ -4,7 +4,7 @@
 }
 
 @using PromotionsWebApp.Domain.Entities
-@using PromotionsWebApp.Models
+@using PromotionsWebApp.Models.Account
 @model LoginVM
 <form asp-action="Login" asp-controller="Account" method="post" role="form" class="center-align">
     <input type="hidden" asp-for="@Model.ReturnUrl" />

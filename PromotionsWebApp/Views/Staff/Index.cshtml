@@ -26,7 +26,7 @@
 }
 
 <div class="row">
-    <h4 class="center-align">Users</h4>
+    <h4 class="center-align">Staff List</h4>
     <div class="divider"></div>
     @if (Model.Staffs.Any())
     {
@@ -42,11 +42,13 @@
                         </span>
                         <p>
                             Rank: @user.StaffJob <br />
-                            Deparment: @user.Department.GetEnumDescription()<br />
-                            Date Employed: @user.DateEmployed
+                            Deparment: @user.Department<br />
+                            Faculty: @user.Faculty<br />
+                            Date Employed: @user.DateEmployed.ToShortDateString()
                         </p>
                         <span class="secondary-content">
-                            <a asp-action="Profile" asp-route-staffId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Profile"><i class="material-icons">edit</i></a>
+                            <a asp-action="Profile" asp-controller="Staff" asp-route-staffId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Profile"><i class="material-icons">visibility</i></a>
+                            <a asp-action="Delete" asp-controller="Staff" asp-route-staffId="@user.Id" class="tooltipped" data-position="top" data-tooltip="Delete Staff"><i class="material-icons  red-text">delete</i></a>
                         </span>
                     </li>
                 }

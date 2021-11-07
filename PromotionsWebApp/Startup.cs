@@ -49,14 +49,15 @@ namespace PromotionsWebApp
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
             })
-             .AddEntityFrameworkStores<pContext>();
-
+             .AddEntityFrameworkStores<pContext>()
+             .AddDefaultTokenProviders();
+            
             //Add Dependencies
             var emailMetadata = Configuration.GetSection("EmailMetadata").Get<EmailMetadata>();
             services.AddSingleton(emailMetadata);
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
             services.AddTransient<IUserRepository,UserRepository>();
-            services.AddSingleton<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailSender, EmailSender>();
             services.AddSingleton<IFileProvider>(
             new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
@@ -64,11 +65,11 @@ namespace PromotionsWebApp
             {
                 options.AutomaticAuthentication = false;
             });
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("ShowUserDepartmentPolicy",
-                     policy => policy.RequireRole("Staff","Dean","HOD"));
-            });
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("ShowUserDepartmentPolicy",
+            //         policy => policy.RequireRole("Staff","Dean","HOD"));
+            //});
             services.AddControllersWithViews();
         }
 

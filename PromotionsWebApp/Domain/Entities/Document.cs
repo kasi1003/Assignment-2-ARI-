@@ -21,9 +21,9 @@ namespace PromotionsWebApp.Domain.Entities
             Content = content;
             isDeleted = false;
         }
-        public int? DocumentStoreId { get; set; }
+        public int? SupportingDocumentsId { get; set; }
         [NotMapped]
-        public virtual DocumentStore DocumentStore { get; set; }
+        public virtual SupportingDocuments SupportingDocuments { get; set; }
         public string FileName { get; set; }
         public byte[] Content { get; set; }
         public DocumentFileTypeEnum FileType { get; set; }

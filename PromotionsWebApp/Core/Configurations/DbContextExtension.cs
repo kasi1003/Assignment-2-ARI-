@@ -61,7 +61,7 @@ namespace PromotionsWebApp.Core.Configurations
         {
             //logger.LogInformation($"Create default user with email `{defaultUser.Email}` for application");
             var user = new User(defaultUser.Title, defaultUser.FirstName,defaultUser.LastName,
-                                defaultUser.Role,defaultUser.Department, defaultUser.Email);
+                                defaultUser.Role, defaultUser.Email);
             user.PasswordReset = false;
             var ir = await um.CreateAsync(user);
             if (ir.Succeeded)
@@ -134,6 +134,11 @@ namespace PromotionsWebApp.Core.Configurations
                         {
                             changed = true;
                             await context.Rank.AddRangeAsync(SeedData.RankSeed());
+                        }
+                        if(!context.Faculty.Any())
+                        {
+                            changed = true;
+                            await context.Faculty.AddRangeAsync(SeedData.FacultySeed());
                         }
                         
                     }).Wait();

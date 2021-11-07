@@ -1,10 +1,321 @@
 ﻿@{
-    ViewData["Title"] = "Staff Page";
+    ViewData["Title"] = "Staff Profile";
+}
+@using PromotionsWebApp.ViewComponents
+@using PromotionsWebApp.Models.Staff
+@using PromotionsWebApp.Domain.Abstract
+@model StaffProfileVM
+
+<div class="section row">
+
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="col s10">
+                        Personal Details
+                    </div>
+                    <div class="col s2">
+                        @await Component.InvokeAsync("PersonalDetailForm", new { model = new PersonalDetailFormViewComponent.PersonalDetailViewModel(Model.Id) })
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s2">
+                        <img id="profilePicture" src="data:image;base64,@System.Convert.ToBase64String(Model.ProfileImage)" width="100" height="100" class="circle"><br />
+                    </div>
+                    <div class="col s10">
+                        <span>Staff Number: @Model.StaffNr</span><br />
+                        <span>Name: @Model.Name</span><br />
+                        <span>Job: @Model.Rank</span><br />
+                        <span>Faculty: @Model.Faculty</span><br />
+                        <span>Department: @Model.Department</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="col s10">
+                        Education
+                    </div>
+                    <div class="col s2">
+                        @await Component.InvokeAsync("EducationForm", new { model = new EducationFormViewComponent.EducationViewModel(Model.Id) })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        @if (Model.Qualifications.Any())
+                        {
+                            <ul class="collection">
+
+                                @foreach (QualificationVM qual in Model.Qualifications)
+                                {
+                                    <li class="collection-item">
+                                        <p>
+                                            Name: @qual.Name <br />
+                                            Institution: @qual.Institution<br />
+                                            Year Obtained: @qual.YearObtained
+                                        </p>
+                                        <span class="secondary-content">
+                                            <a class="tooltipped" onclick="ViewDocument(@qual.CertificateDocumentId)" data-position="top" data-tooltip="View Document"><i class="material-icons">visibility</i></a>
+                                            <a class="tooltipped" href="#confirmationModal"
+                                               onclick="initConfirmModal('Delete', 'Education', '@qual.Id')" data-position="top" data-tooltip="Remove Qualification"><i class="material-icons red-text">delete</i></a>
+
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="centered">No Qualifications uploaded</span>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="col s10">
+                        Publications
+                    </div>
+                    <div class="col s2">
+                        @await Component.InvokeAsync("PublicationForm", new { model = new PublicationFormViewComponent.PublicationViewModel(Model.Id) })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        @if (Model.Publications.Any())
+                        {
+                            <ul class="collection">
+
+                                @foreach (PublicationVM item in Model.Publications)
+                                {
+                                    <li class="collection-item">
+                                        <p>
+                                            Name: @item.Name <br />
+                                            Authors: @item.Authors
+                                            Publication Type: @item.PublicationType.ToString()<br />
+                                            Year Obtained: @item.YearObtained
+                                        </p>
+                                        <span class="secondary-content">
+                                            <a class="tooltipped" id="submitConfirmBtn"
+                                               onclick="initConfirmModal('Delete', 'Publication', '@item.Id')" data-position="top" data-tooltip="Remove Qualification"><i class="material-icons red-text">delete</i></a>
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="centered">No Publications uploaded</span>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="center-align">
+                        Supporting Documents
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Curriculum Vitae</span><br />
+                            @if (Model.SupportingDocuments.CVId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    tick
+                                </span><br />
+                                <span onclick="ViewDocument(@Model.SupportingDocuments.CVId)">View</span>
+                                <span> / </span>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span><br />
+                            }
+                            @await Component.InvokeAsync("UploadDocuments", new { model = new UploadDocumentsViewComponent.UploadDocumentsViewModel(Model.SupportingDocumentsId, UploadTypeEnum.CV) })
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Identity Document</span><br />
+                            @if (Model.SupportingDocuments.IdentityDocumentId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    tick
+                                </span><br />
+                                <span onclick="ViewDocument(@Model.SupportingDocuments.IdentityDocumentId)">View</span>
+                                <span> / </span>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span><br />
+                            }
+                            @await Component.InvokeAsync("UploadDocuments", new { model = new UploadDocumentsViewComponent.UploadDocumentsViewModel(Model.SupportingDocumentsId, UploadTypeEnum.ID) })
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Student Evaluation Forms</span><br />
+                            @if (Model.SupportingDocuments.StudentEvalFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    tick
+                                </span><br />
+                                <span onclick="ViewDocument(@Model.SupportingDocuments.StudentEvalFormId)">View</span>
+                                <span> / </span>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span><br />
+                            }
+                            @await Component.InvokeAsync("UploadDocuments", new { model = new UploadDocumentsViewComponent.UploadDocumentsViewModel(Model.SupportingDocumentsId, UploadTypeEnum.StudentEval) })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Peer Evaluation Forms</span><br />
+                            @if (Model.SupportingDocuments.PeerEvalFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    tick
+                                </span><br />
+                                <span onclick="ViewDocument(@Model.SupportingDocuments.PeerEvalFormId)">View</span>
+                                <span> / </span>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span><br />
+                            }
+                            @await Component.InvokeAsync("UploadDocuments", new { model = new UploadDocumentsViewComponent.UploadDocumentsViewModel(Model.SupportingDocumentsId, UploadTypeEnum.PeerEval) })
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Community Service Statement</span><br />
+                            @if (Model.SupportingDocuments.CommunityServiceFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    tick
+                                </span><br />
+                                <span onclick="ViewDocument(@Model.SupportingDocuments.CommunityServiceFormId)">View</span>
+                                <span> / </span>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span><br />
+                            }
+                            @await Component.InvokeAsync("UploadDocuments", new { model = new UploadDocumentsViewComponent.UploadDocumentsViewModel(Model.SupportingDocumentsId, UploadTypeEnum.CommunityService) })
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Scholarship in Teaching Statement</span><br />
+                            @if (Model.SupportingDocuments.ScholarshipInTeachingFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    tick
+                                </span><br />
+                                <span onclick="ViewDocument(@Model.SupportingDocuments.ScholarshipInTeachingFormId)">View</span>
+                                <span> / </span>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span><br />
+                            }
+                            @await Component.InvokeAsync("UploadDocuments", new { model = new UploadDocumentsViewComponent.UploadDocumentsViewModel(Model.SupportingDocumentsId, UploadTypeEnum.ScholarshipInTeaching) })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="center-align">
+                        Job History
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        @if (Model.Jobs.Any())
+                        {
+                            <ul class="collection">
+
+                                @foreach (StaffJobVM item in Model.Jobs)
+                                {
+                                    <li class="collection-item">
+                                        <p>
+                                            Rank: @item.Name<br />
+                                            Faculty: @item.Faculty<br />
+                                            Department: @item.Department<br />
+                                            Date Employed: @item.DateEmployed.ToShortDateString()<br />
+                                            @if (!item.IsCurrent)
+                                            {
+                                                <span>Date Left: @item.DateLeft.Value.ToShortDateString()</span>
+                                            }
+                                        </p>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="centered">No Job History</span>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        $(document).ready(function () {
+            $('select').formSelect();
+        });
+    </script>
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
-<div class="section row">
-    </div>
+
+
+
+
+
+

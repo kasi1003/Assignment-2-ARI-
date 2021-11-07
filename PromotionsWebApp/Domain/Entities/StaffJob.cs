@@ -10,9 +10,10 @@ namespace PromotionsWebApp.Domain.Entities
     {
         public int StaffId { get; set; }
         public virtual Staff Staff { get; set; }
-        public DepartmentEnum Department { get; set; }
         public int RankId { get; set; }
         public virtual Rank Rank { get; set; }
+        public string Faculty { get; set; }
+        public string Department { get; set; }
         public bool IsCurrent { get; set; }
         public DateTime DateEmployed { get; set; }
         public DateTime? DateLeft { get; set; }

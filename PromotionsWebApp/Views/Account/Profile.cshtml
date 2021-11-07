@@ -1,20 +1,23 @@
 ﻿
 @{
-    ViewData["Title"] = "User Profile";
+    ViewData["Title"] = "Create User";
+    SelectList facultyList = (SelectList)ViewData["Faculties"];
+    SelectList rankList = (SelectList)ViewData["Ranks"];
 }
 @using PromotionsWebApp.Domain.Entities
 @using PromotionsWebApp.Domain.Abstract
-@using PromotionsWebApp.Models
-@model UserVM
+@using PromotionsWebApp.Models.Account
+@model CreateUserVM
 <form asp-action="Profile" asp-controller="Account" method="post" role="form" class="center-align">
     <div class="row z-depth-2">
         <h4 class="center-align">Update User Details</h4>
         <div class="divider"></div>
         <div class="row">
             <div class="col s12">
-                <input type="hidden" asp-for="Id" value="@Model.Id" />
+                <input type="hidden" asp-for="Id" />
+                <div class="red-text" asp-validation-summary="All"></div>
                 <div class="row">
-                    <div class="input-field col s10">
+                    <div class="input-field col s8 offset-s2">
                         <Label class="select-label active">Title</Label>
                         <select class="normalSelect" asp-for="Title" asp-items="Html.GetEnumSelectList<TitleEnum>()">
                             <option disabled selected="selected" value="">Please select Title</option>
@@ -22,85 +25,132 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-field col s10">
+                    <div class="input-field col s8 offset-s2">
                         @Html.LabelFor(model => model.FirstName)
                         <input type="text" class="validate" asp-for="FirstName" />
                         <span asp-validation-for="FirstName" class="red-text text-darken-2" />
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-field col s10">
+                    <div class="input-field col s8 offset-s2">
                         @Html.LabelFor(model => model.Surname)
                         <input type="text" class="validate" asp-for="Surname" />
                         <span asp-validation-for="Surname" class="red-text text-darken-2" />
                     </div>
                 </div>
-                @if (User.IsInRole("Admin"))
-                {
-                    <div class="row">
-                        <div class="input-field col s10">
-                            <Label class="select-label active">Role</Label>
-                            <select class="normalSelect" asp-for="Role" asp-items="Html.GetEnumSelectList<UserRoleEnum>()">
-                                <option disabled selected="selected" value="">Please select Role</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s10">
-                            <Label class="select-label active">Department</Label>
-                            <select class="normalSelect" asp-for="Department" asp-items="Html.GetEnumSelectList<DepartmentEnum>()">
-                                <option disabled selected="selected" value="">Please select Department</option>
-                            </select>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <input type="hidden" asp-for="Role" />
-                    <input type="hidden" asp-for="Department" />
-                }
-
                 <div class="row">
-                    <div class="input-field col s10">
+                    <div class="input-field col s8 offset-s2">
                         @Html.LabelFor(model => model.Email)
                         <input type="text" class="validate" asp-for="Email" />
                         <span asp-validation-for="Email" class="red-text text-darken-2" />
                     </div>
                 </div>
-                <div class="row">
-                    <div class="input-field col s10">
-                        @Html.LabelFor(model => model.Password)
-                        <input type="text" class="validate" asp-for="Password" />
-                        <span asp-validation-for="Password" class="red-text text-darken-2" />
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="row">
+                        <div class="input-field col s8 offset-s2">
+                            <Label class="select-label active">Role</Label>
+                            <select class="normalSelect" id="roleSelect" asp-for="Role" asp-items="Html.GetEnumSelectList<UserRoleEnum>()">
+                                <option disabled value="">Please select Role</option>
+                            </select>
+                        </div>
                     </div>
+                    @*Appear if 6,7,8*@
+                    @if (Model.Role == UserRoleEnum.Dean || Model.Role == UserRoleEnum.HOD)
+                    {
+                        <div id="staffLocationOptions">
+                            <div class="row">
+                                <div class="input-field col s8 offset-s2">
+                                    <Label class="select-label active">Faculty</Label>
+                                    <select class="normalSelect" id="facultySelect" asp-for="FacultyId" asp-items="facultyList">
+                                        <option disabled value="">Please select Faculty</option>
+                                    </select>
+                                </div>
+                            </div>
+                            @*Appear if 7,8*@
+                            @if (Model.Role == UserRoleEnum.HOD)
+                            {
+                                <div class="row">
+                                    <div class="input-field col s8 offset-s2">
+                                        <Label class="select-label active">Department</Label>
+                                        <select class="normalSelect" id="departmentSelect" asp-for="DepartmentId">
+                                            <option disabled value="">Please select Deparment</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row">
+                                    <div class="input-field col s8 offset-s2">
+                                        <Label class="select-label active">Department</Label>
+                                        <select class="normalSelect" id="departmentSelect" disabled asp-for="DepartmentId">
+                                            <option disabled value="">Please select Deparment</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="staffLocationOptions" style="display:none;">
+                            <div class="row">
+                                <div class="input-field col s8 offset-s2">
+                                    <Label class="select-label active">Faculty</Label>
+                                    <select class="normalSelect" id="facultySelect" asp-for="FacultyId" asp-items="facultyList">
+                                        <option disabled value="">Please select Faculty</option>
+                                    </select>
+                                </div>
+                            </div>
+                            @*Appear if 7,8*@
+                            <div class="row">
+                                <div class="input-field col s8 offset-s2">
+                                    <Label class="select-label active">Department</Label>
+                                    <select class="normalSelect" id="departmentSelect" disabled asp-for="DepartmentId">
+                                        <option disabled value="">Please select Deparment</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <input type="hidden" asp-for="Role" />
+                    <input type="hidden" asp-for="FacultyId" />
+                    <input type="hidden" asp-for="DepartmentId" />
+                }
+
+            </div>
+
+            <div class="row">
+                <div class="input-field col s8 offset-s2">
+                    <a class="btn waves-effect waves-light btn-large red lighten-1" asp-action="Index">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Cancel</span>
+                    </a>
+                    <button type="submit" name="cmdButton" class="btn waves-effect waves-light btn-large green lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            send
+                        </span>
+                        <span class="black-text">Submit</span>
+                    </button>
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <div class="input-field col s8 offset-s2">
-                <a class="btn waves-effect waves-light btn-large red lighten-1" asp-action="Index">
-                    <span class="material-icons md-dark md-24 matIcon">
-                        cancel
-                    </span>
-                    <span class="black-text">Cancel</span>
-                </a>
-                <button type="submit" name="cmdButton" class="btn waves-effect waves-light btn-large green lighten-1">
-                    <span class="material-icons md-dark md-24 matIcon">
-                        send
-                    </span>
-                    <span class="black-text">Submit</span>
-                </button>
-            </div>
-        </div>
     </div>
+
 </form>
 @section Scripts {
 
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script>
-    $(document).ready(function () {
-        $('select').formSelect();
-    });
+        $(document).ready(function () {
+            $('select').formSelect();
+        });
     </script>
 }

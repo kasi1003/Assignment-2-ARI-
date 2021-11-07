@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PromotionsWebApp.Core.Interfaces;
 using PromotionsWebApp.Domain.Abstract;
 using PromotionsWebApp.Domain.Entities;
 using PromotionsWebApp.Domain.Settings;
-using PromotionsWebApp.Models;
+using PromotionsWebApp.Models.Account;
 using PromotionsWebApp.Utilities;
 using System;
 using System.Collections.Generic;
@@ -16,26 +17,12 @@ using System.Threading.Tasks;
 namespace PromotionsWebApp.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly IUserRepository _repo;
-        private readonly IRepository<Staff> _staffRepo;
-        private readonly ILogger<AccountController> _logger;
-        private readonly IEmailSender _emailSender;
-        public AccountController(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            ILogger<AccountController> logger, IUserRepository repo,
-            IEmailSender emailSender, IRepository<Staff> staffRepo)
+        ILogger<AccountController> _logger;
+        public AccountController(ILogger<AccountController> logger, IServiceScopeFactory factory) : base(factory)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _logger = logger;
-            _emailSender = emailSender;
-            _repo = repo;
-            _staffRepo = staffRepo;
         }
 
         [HttpGet]
@@ -128,7 +115,7 @@ namespace PromotionsWebApp.Controllers
         {
             if (User.IsInRole("Admin"))
             {
-                IEnumerable<User> users = _userManager.Users.AsEnumerable();
+                IEnumerable<User> users = _userManager.Users.Where(x=>x.Role!=UserRoleEnum.Staff).AsEnumerable();
                 List<UserVM> userList = new List<UserVM>();
 
                 if (searchString != null)
@@ -139,13 +126,22 @@ namespace PromotionsWebApp.Controllers
                 {
                     searchString = currentFilter;
                 }
-                ViewData["CurrentFilter"] = searchString;               
+                ViewData["CurrentFilter"] = searchString;
                 foreach (User user in users)
                 {
+                    if (user.FacultyId != null)
+                        user.Faculty = await _facultyRepo.GetSingle(user.FacultyId.Value);
+                    if (user.DepartmentId != null)
+                        user.Department = await _departmentRepo.GetSingle(user.DepartmentId.Value);
+
                     if (!user.isDeleted)
                     {
-                        userList.Add(new UserVM(user.Id,user.Title, user.FirstName, user.LastName, user.Role, 
-                            user.Department, user.Email,user.ProfileImage));
+                        UserVM item = new UserVM(user.Id, user.Title, user.FirstName, user.LastName, user.Role, user.Email, user.ProfileImage);
+                        if (user.Faculty != null)
+                            item.Faculty = user.Faculty.Name;
+                        if (user.Department != null)
+                            item.Department = user.Department.Name;
+                        userList.Add(item);
                     }
                 }
                 if (!String.IsNullOrEmpty(searchString))
@@ -170,39 +166,86 @@ namespace PromotionsWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            UserVM model = new UserVM();
+            CreateUserVM model = new CreateUserVM();
+            await GetFacultySelect();
+            await GetRankSelect();
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Create(UserVM model)
+        public async Task<IActionResult> Create(CreateUserVM model)
         {
             try
             {
                 if (!ModelState.IsValid)
+                {
+                    await GetFacultySelect();
+                    await GetRankSelect();
                     return View(model);
+                }
                 bool didError = false;
+
+                //Check if Dropdowns are selected
                 if ((int)model.Role < 1)
                 {
                     ModelState.AddModelError(String.Empty, "User Role is required");
                     didError = true;
                 }
-                if ((int)model.Department < 1)
+                else if ((int)model.Role > 5)
                 {
-                    ModelState.AddModelError(String.Empty, "User Department is required");
-                    didError = true;
+                    if (model.FacultyId < 1)
+                    {
+                        ModelState.AddModelError(String.Empty, "User Faculty is required");
+                        didError = true;
+                    }
+                    if ((int)model.Role > 6)
+                    {
+                        if (model.DepartmentId < 1)
+                        {
+                            ModelState.AddModelError(String.Empty, "User Department is required");
+                            didError = true;
+                        }
+                        if (model.Role == UserRoleEnum.Staff)
+                        {
+                            if(model.StaffNr == ""||model.StaffNr==null)
+                            {
+                                ModelState.AddModelError(String.Empty, "Staff number is required");
+                                didError = true;
+                            }
+                            if (model.RankId < 1)
+                            {
+                                ModelState.AddModelError(String.Empty, "Staff Job Title is required");
+                                didError = true;
+                            }
+                            if (model.DateEmployed > DateTime.Now)
+                            {
+                                ModelState.AddModelError(String.Empty, "Staff Date Employed cannot be in the future");
+                                didError = true;
+                            }
+
+                        }
+                    }
+
+
                 }
                 if (didError)
+                {
+                    await GetFacultySelect();
+                    await GetRankSelect();
                     return View(model);
+                }
+                   
 
                 //add user to system
                 var user = new User(model.Title, model.FirstName, model.Surname,
-                                model.Role,model.Department, model.Email);
+                                model.Role, model.Email, model.FacultyId.Value, model.DepartmentId.Value);
                 var users = await _userManager.FindByEmailAsync(user.Email);
                 if (users != null)
                 {
                     if (!users.isDeleted)
                     {
                         ModelState.AddModelError(string.Empty, "Email address is already assigned to another account");
+                        await GetFacultySelect();
+                        await GetRankSelect();
                         return View(model);
                     }
 
@@ -211,26 +254,38 @@ namespace PromotionsWebApp.Controllers
                 var createdUser = await _userManager.FindByNameAsync(user.UserName);
                 if (ir.Succeeded)
                 {
-                    //logger.LogDebug($"Created default user `{defaultUser.Email}` successfully");
+                    //_logger.LogDebug($"Created default user `{defaultUser.Email}` successfully");
                     //add password to user
-
-
-                    var io = await _userManager.AddPasswordAsync(user, model.Password);
+                    var io = await _userManager.AddPasswordAsync(user, "NewPassword1");
                     if (io.Succeeded)
                     {
                         var im = await _userManager.AddToRoleAsync(user, user.Role.ToString());
                         if (im.Succeeded)
                         {
                             //send email here to user with details
+                            
                             var token = await _userManager.GeneratePasswordResetTokenAsync(createdUser);
                             var link = Url.Action("Login", "Account", new { }, Request.Scheme);
-                            await _emailSender.SendNewUserDetails(user.Email, user.UserName, model.Password, link);
-                            if(user.Role == UserRoleEnum.Staff)
+                            //await _emailSender.SendNewUserDetails(user.Email, user.UserName, "NewPassword1", link);
+                            if (user.Role == UserRoleEnum.Staff)
                             {
-                                Staff newStaff = new Staff(user.Id,user);
+                                Staff newStaff = new Staff(user.Id);
+                                var faculty = await _facultyRepo.GetSingle(user.FacultyId.Value);
+                                var department = await _departmentRepo.GetSingle(user.DepartmentId.Value);
+                                newStaff.StaffNr = model.StaffNr;
+                                newStaff.SupportingDocuments = new SupportingDocuments();
+                                newStaff.Jobs.Add(new StaffJob
+                                {
+                                    DateEmployed = model.DateEmployed,
+                                    RankId = model.RankId.Value,
+                                    IsCurrent = true,
+                                    Faculty = faculty.Name,
+                                    Department = department.Name
+                                });
                                 await _staffRepo.Add(newStaff);
-                                return RedirectToAction("CreateStaff", "Staff", new { staffId = newStaff.Id });
-                            }                            
+                                TempData["Toast"] = "Staff: " + user.ToString() + " has been successfully been added.";
+                                return RedirectToAction("Index", "Staff");
+                            }
                         }
                         else
                         {
@@ -258,23 +313,28 @@ namespace PromotionsWebApp.Controllers
                 }
 
 
-                TempData["Toast"] = "User: " + user.UserName + " has been successfully been added.";
+                TempData["Toast"] = "User: " + user.ToString() + " has been successfully been added.";
             }
             catch (Exception ex)
             {
                 if (!ModelState.IsValid)
+                {
+                    await GetFacultySelect();
+                    await GetRankSelect();
                     return View(model);
+                }
+                    
                 TempData["Toast"] = "An error occured, if the issue persists please contact the developer";
                 return RedirectToAction(nameof(AccountController.Index), "Account");
             }
             return RedirectToAction(nameof(AccountController.Index), "Account");
         }
-        
+
 
         [HttpGet]
         public async Task<IActionResult> Profile([FromQuery] string userId)
         {
-            UserVM model = new UserVM();
+            CreateUserVM model = new CreateUserVM();
             try
             {
                 User user = null;
@@ -289,18 +349,18 @@ namespace PromotionsWebApp.Controllers
                         throw exception;
                     }
                 }
-                model = new UserVM
-                {
-                    Id = user.Id,
-                    Title = user.Title,
-                    ProfileImage = user.ProfileImage,
-                    FirstName = user.FirstName,
-                    Surname = user.LastName,
-                    Email = user.Email,
-                    Role = user.Role,
-                    Department = user.Department,
-                    Password = null
-                };
+                model = new CreateUserVM();
+                model.Id = user.Id;
+                model.Title = user.Title;
+                model.FirstName = user.FirstName;
+                model.Surname = user.LastName;
+                model.Email = user.Email;
+                model.Role = user.Role;
+                if (user.FacultyId != null)
+                    model.FacultyId = user.FacultyId;
+                if (user.DepartmentId != null)
+                    model.DepartmentId = user.DepartmentId;
+                
 
             }
             catch (Exception ex)
@@ -311,7 +371,7 @@ namespace PromotionsWebApp.Controllers
 
         }
         [HttpPost]
-        public async Task<IActionResult> Profile(UserVM model)
+        public async Task<IActionResult> Profile(CreateUserVM model)
         {
             try
             {
@@ -323,9 +383,9 @@ namespace PromotionsWebApp.Controllers
                     ModelState.AddModelError(String.Empty, "User Role is required");
                     didError = true;
                 }
-                if ((int)model.Department < 1)
+                if (model.Role ==UserRoleEnum.Staff)
                 {
-                    ModelState.AddModelError(String.Empty, "User Department is required");
+                    ModelState.AddModelError(String.Empty, "Cannot change existing users to staff, create new user instead");
                     didError = true;
                 }
                 if (didError)
@@ -338,56 +398,32 @@ namespace PromotionsWebApp.Controllers
                     //logger.LogError(exception, GetIdentiryErrorsInCommaSeperatedList(ir));
                     throw exception;
                 }
+                user.Title = model.Title;
                 user.FirstName = model.FirstName;
                 user.LastName = model.Surname;
                 if (User.IsInRole("Admin"))
                 {
                     user.Role = model.Role;
-                    user.Department = model.Department;
+                    user.DepartmentId = model.DepartmentId;
+                    user.FacultyId = model.FacultyId;
                 }
-                user.Email = model.Email;
-                user.UserName = model.Email;
-                var users = await _userManager.FindByEmailAsync(user.Email);
-                if (user.Role == UserRoleEnum.Staff)
+                if(user.Email != model.Email)
                 {
-                    var staffList = await _staffRepo.GetAll();
-                    var staff = staffList.Where(x => x.UserId == user.Id).First();
-                    await _staffRepo.Update(staff);
-                }
-                if (users != null && users.Id != user.Id)
-                {
-                    if (!users.isDeleted)
+                    var users = await _userManager.FindByEmailAsync(model.Email);
+                    if(users!=null)
                     {
                         ModelState.AddModelError(string.Empty, "Email address is already assigned to another account");
                         return View(model);
                     }
-
-                }
-                var ir = await _userManager.UpdateAsync(user);
-                if (ir.Succeeded)
-                {
-
-                    //logger.LogDebug($"Created default user `{defaultUser.Email}` successfully");
-                    if (model.Password != null)
+                    else
                     {
-                        var createdUser = await _userManager.FindByEmailAsync(user.Email);
-                        var io = await _userManager.RemovePasswordAsync(createdUser);
-                        if (io.Succeeded)
-                        {
-                            //logger.LogTrace($"Set password `{defaultUser.Password}` for default user `{defaultUser.Email}` successfully");
-                            await _userManager.AddPasswordAsync(createdUser, model.Password);
-                        }
-                        else
-                        {
-                            var exception = new ApplicationException($"The role `{user.Role.ToString()}` cannot be set for the user `{user.Email}`");
-                            ModelState.AddModelError(string.Empty, "User can not be assigned to role");
-                            //logger.LogError(exception, GetIdentiryErrorsInCommaSeperatedList(ir));
-                            throw exception;
-                        }
+                        user.Email = model.Email;
+                        user.UserName = model.Email;
                     }
-
                 }
-                else
+                
+                var ir = await _userManager.UpdateAsync(user);
+                if (!ir.Succeeded)
                 {
                     var exception = new ApplicationException($"New User `{user.UserName}` cannot be created");
                     ModelState.AddModelError(string.Empty, "User cannot be created, please try again.");
@@ -413,13 +449,13 @@ namespace PromotionsWebApp.Controllers
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);              
+                var user = await _userManager.FindByIdAsync(userId);
                 user.Email = "email@email.com";
                 user.UserName = "Deleted";
                 user.FirstName = "Deleted";
                 user.LastName = "Deleted";
                 user.isDeleted = true;
-                await _repo.Delete(user);
+                await _userRepo.Delete(user);
                 if (user.Role == UserRoleEnum.Staff)
                 {
                     Staff staff = await _staffRepo.GetSingle(x => x.UserId == userId);
@@ -520,6 +556,6 @@ namespace PromotionsWebApp.Controllers
         }
 
         //change profile image
-        
+
     }
 }

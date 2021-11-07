@@ -8,11 +8,12 @@ namespace PromotionsWebApp.Domain.Abstract
     public enum UserRoleEnum
     {
         Admin = 1,
-        Dean,
-        IFEC,
-        HOD,
+        VC,
         PSPC,
-        Staff,
-        VC
+        IFEC,
+        HR,
+        Dean,
+        HOD,
+        Staff
     }
 }

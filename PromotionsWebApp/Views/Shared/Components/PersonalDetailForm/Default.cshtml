@@ -1,0 +1,84 @@
+﻿@model PromotionsWebApp.ViewComponents.PersonalDetailFormViewComponent.PersonalDetailViewModel
+@using PromotionsWebApp.Domain.Abstract
+
+@*Personal Details Add Modal*@
+<a href="#personalDetailModal" class="tooltipped modal-trigger" id="updatePersonalDetailBtn" data-position="top" data-tooltip="Update Personal Details"><i class="material-icons">edit</i></a>
+
+<div id="personalDetailModal" class="modal grey lighten-5">
+    <form id="personalDetailsForm" asp-action="UpdatePersonalDetails" asp-controller="Staff" method="post" role="form" enctype='multipart/form-data'>
+        <input type="hidden" asp-for="StaffId" />
+        <div class="modal-content">
+            <h4 class="center-align">Modify Personal Details</h4>
+            <div class="row">
+                <div class="row">
+                    <div class="col s12">
+                        <div class="row">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="row">
+                                    <div class="input-field col s8 offset-s2">
+                                        <Label class="select-label active">Staff Number</Label>
+                                        <input type="text" class="input-field" asp-for="@Model.StaffNr">
+                                        <span asp-validation-for="StaffNr" class="red-text text-darken-2" />
+                                    </div>
+                                </div>
+                            }
+                            <div class="row">
+                                <div class="input-field col s8 offset-s2">
+                                    <Label class="select-label active">Title</Label>
+                                    <select class="normalSelect" asp-for="Title" asp-items="Html.GetEnumSelectList<TitleEnum>()">
+                                        <option disabled selected="selected" value="">Please select Title</option>
+                                    </select>
+                                </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s8 offset-s2">
+                                        @Html.LabelFor(model => model.FirstName)
+                                        <input type="text" class="validate" asp-for="FirstName" />
+                                        <span asp-validation-for="FirstName" class="red-text text-darken-2" />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s8 offset-s2">
+                                        @Html.LabelFor(model => model.Surname)
+                                        <input type="text" class="validate" asp-for="Surname" />
+                                        <span asp-validation-for="Surname" class="red-text text-darken-2" />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s8 offset-s2">
+                                        @Html.LabelFor(model => model.Email)
+                                        <input type="email" class="validate" asp-for="Email" />
+                                        <span asp-validation-for="Email" class="red-text text-darken-2" />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s8 offset-s2">
+                                        <Label class="active">Profile Image</Label><br/>
+                                        <input type="file" accept="image/*" class="validate" asp-for="ProfileImage" />
+                                        <span asp-validation-for="ProfileImage" class="red-text text-darken-2" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="input-field col s8 offset-s2">
+                    <a class="btn modal-close waves-effect waves-light btn-large red lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Cancel</span>
+                    </a>
+                    <button type="submit" id="submitPersonalDetailsBtn" class="btn waves-effect waves-light btn-large green lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            send
+                        </span>
+                        <span class="black-text">Submit</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
