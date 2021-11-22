@@ -81,7 +81,34 @@ namespace PromotionsWebApp.Domain.Settings
             EmailMessage message = new EmailMessage(email, "Promotions Web App Inbox", CreateInboxNotificationText(link));
             await SendEmailAsync(message);
         }
-
+        public async Task SendPromotionApproved(string email,string link)
+        {
+            EmailMessage message = new EmailMessage(email, "Promotion Accepted", CreatePromotionApproved(link));
+            await SendEmailAsync(message);
+        }
+        public async Task SendPromotionRejected(string email,string link)
+        {
+            EmailMessage message = new EmailMessage(email, "Promotion Rejected", CreatePromotionRejected(link));
+            await SendEmailAsync(message);
+        }
+        private string CreatePromotionApproved(string Link)
+        {
+            var output = "";
+            output = string.Format("<p>Good Day,</p><p>Your promotion application has been approved</p>" +
+                                    "<p>Please log into system to view its progress</p>" +
+                                    "<p>{0}</p><br/>" +
+                                    "<p>Kind Regards,<br/>Administrator<br/>Promotions Web App</p>", Link);
+            return output;
+        }
+        private string CreatePromotionRejected(string Link)
+        {
+            var output = "";
+            output = string.Format("<p>Good Day,</p><p>Your promotion application has been rejected</p>" +
+                                    "<p>Please log into system to view the reason</p>" +
+                                    "<p>{0}</p><br/>" +
+                                    "<p>Kind Regards,<br/>Administrator<br/>Promotions Web App</p>", Link);
+            return output;
+        }
         private string CreateResetPasswordText(string Link)
         {
             var output = "";

@@ -165,21 +165,21 @@ namespace PromotionsWebApp.Controllers
         {
             try
             {
-                var promotion = await _promotionRepo.GetSingle(x => x.Id == model.AcceptDec.PromotionId, x => x.Evaluations);
+                var promotion = await _promotionRepo.GetSingle(x => x.Id == model.AcceptDec.PromotionId, x => x.Evaluations,x=>x.Staff);
                 if (promotion != null)
                 {
                     var user = await _userManager.FindByNameAsync(User.Identity.Name);
                     if (promotion.Evaluations == null)
                         promotion.Evaluations = new List<PromotionDecision>();
-                    var des=new PromotionDecision
+                    var des = new PromotionDecision
                     {
                         PromotionId = promotion.Id,
                         Decision = PromotionStageApprovalEnum.Accepted,
                         Remarks = model.AcceptDec.Remarks,
                         UserId = user.Id,
-                        
+
                     };
-                    if (model.AcceptDec.Submission!=null)
+                    if (model.AcceptDec.Submission != null)
                     {
                         des.SubmissionDocument = new Document
                         {
@@ -192,13 +192,13 @@ namespace PromotionsWebApp.Controllers
                     status++;
                     promotion.Status = (PromotionStatusEnum)status;
                     await _promotionRepo.Update(promotion);
-                    if(promotion.Status==PromotionStatusEnum.Approved)
+                    if (promotion.Status == PromotionStatusEnum.Approved)
                     {
                         var stff = await _staffRepo.GetSingle(x => x.Id == promotion.StaffId, x => x.Jobs);
                         stff.User = await _userManager.FindByIdAsync(stff.UserId);
                         stff.User.Faculty = await _facultyRepo.GetSingle(stff.User.FacultyId.Value);
                         stff.User.Department = await _departmentRepo.GetSingle(stff.User.DepartmentId.Value);
-                        stff.Jobs.Where(x=>x.IsCurrent==true).FirstOrDefault().DateLeft = DateTime.Now;
+                        stff.Jobs.Where(x => x.IsCurrent == true).FirstOrDefault().DateLeft = DateTime.Now;
                         stff.Jobs.Where(x => x.IsCurrent == true).FirstOrDefault().IsCurrent = false;
                         var staffJob = new StaffJob
                         {
@@ -209,7 +209,20 @@ namespace PromotionsWebApp.Controllers
                             DateEmployed = DateTime.Now
                         };
                         stff.Jobs.Add(staffJob);
+
                         await _staffRepo.Update(stff);
+                        var link = Url.Action("Detail", "Promotions", new { promotionId = promotion.Id }, Request.Scheme);
+                        var stffUser = await _userManager.FindByIdAsync(promotion.Staff.UserId);
+                        var allUser = _userRepo.Get();
+
+                        await _emailSender.SendPromotionApproved(stffUser.Email, link);
+
+                        if(promotion.Status!=PromotionStatusEnum.Approved||promotion.Status!=PromotionStatusEnum.Rejected)
+                        {
+                            string email = allUser.Where(x=>x.Role.ToString() == promotion.Status.ToString()).FirstOrDefault()?.Email;
+                            var linkT = Url.Action("Detail", "Promotions", new { promotionId = promotion.Id }, Request.Scheme);
+                            await _emailSender.SendInboxNotification(email, linkT);
+                        }
                     }
                     //Todo Send Email
                     ViewData["Toast"] = "Promotion has been rejected";
@@ -245,7 +258,7 @@ namespace PromotionsWebApp.Controllers
             string userId = "";
             try
             {
-                var promotion = await _promotionRepo.GetSingle(x => x.Id == model.RejectDec.PromotionId, x => x.Evaluations);
+                var promotion = await _promotionRepo.GetSingle(x => x.Id == model.RejectDec.PromotionId, x => x.Evaluations,x=>x.Staff);
                 if (promotion != null)
                 {
                     var user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -253,7 +266,7 @@ namespace PromotionsWebApp.Controllers
                         promotion.Evaluations = new List<PromotionDecision>();
                     var des = new PromotionDecision
                     {
-                        PromotionId =promotion.Id,
+                        PromotionId = promotion.Id,
                         Decision = PromotionStageApprovalEnum.Rejected,
                         Remarks = model.RejectDec.Remarks,
                         UserId = user.Id,
@@ -271,6 +284,9 @@ namespace PromotionsWebApp.Controllers
                     promotion.Status = PromotionStatusEnum.Rejected;
                     await _promotionRepo.Update(promotion);
                     //Todo Send Email
+                    var link = Url.Action("Detail", "Promotions", new { promotionId = promotion.Id }, Request.Scheme);
+                    var stffUser = await _userManager.FindByIdAsync(promotion.Staff.UserId);
+                        await _emailSender.SendPromotionRejected(stffUser.Email, link);
                     ViewData["Toast"] = "Promotion has been rejected";
                     return RedirectToAction("Index", "Promotions", new { userId = user.Id });
                 }
@@ -279,7 +295,7 @@ namespace PromotionsWebApp.Controllers
             {
 
             }
-            return RedirectToAction("Detail", "Promotions", new { promotionId = model.RejectDec.PromotionId});
+            return RedirectToAction("Detail", "Promotions", new { promotionId = model.RejectDec.PromotionId });
         }
         [HttpGet]
         public async Task<IActionResult> Apply(int staffId)
@@ -375,6 +391,12 @@ namespace PromotionsWebApp.Controllers
                 };
                 await _promotionRepo.Add(prom);
                 TempData["Toast"] = "Promotion details has succesfully been added";
+                var link = Url.Action("Detail", "Promotions", new { promotionId = prom.Id }, Request.Scheme);
+                var stffUser = await _userManager.FindByIdAsync(staff.UserId);
+                var allUsers = _userRepo.Get();
+                string email = allUsers.Where(x => x.DepartmentId == stffUser.DepartmentId && x.Role == UserRoleEnum.HOD).FirstOrDefault()?.Email;
+                if (email != null)
+                    await _emailSender.SendInboxNotification(email, link);
                 return RedirectToAction("Index", "Promotions", new { userId = user.Id });
             }
             catch (Exception ex)

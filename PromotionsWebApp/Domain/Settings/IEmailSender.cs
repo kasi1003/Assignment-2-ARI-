@@ -14,6 +14,8 @@ namespace PromotionsWebApp.Domain.Settings
         Task SendLoginDetails(string emailAddress, string userName, string link);
         Task SendInboxNotification(string email,string link);
         Task SendNewUserDetails(string emailAddress, string userName, string password,string link);
+        Task SendPromotionApproved(string email,string link);
+        Task SendPromotionRejected(string email,string link);
  
 
     }

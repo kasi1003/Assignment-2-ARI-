@@ -9,10 +9,6 @@
     {
       "library": "jquery@3.6.0",
       "destination": "wwwroot/lib/jquery/"
-    },
-    {
-      "library": "pdfobject@2.2.7",
-      "destination": "wwwroot/lib/pdfobject/"
     }
   ]
 }
