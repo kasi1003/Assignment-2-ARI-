@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PromotionsWebApp.Core.Interfaces;
+using PromotionsWebApp.Domain.Abstract;
 using PromotionsWebApp.Domain.Entities;
 using PromotionsWebApp.Models;
+using PromotionsWebApp.Models.Qualification;
 using PromotionsWebApp.Models.Staff;
 using PromotionsWebApp.Utilities;
 using System;
@@ -98,11 +100,20 @@ namespace PromotionsWebApp.Controllers
             return View(model);
         }
 
-   
+
         [HttpGet]
-        public async Task<IActionResult> Profile(int staffId)
+        public async Task<IActionResult> Profile(int staffId=0)
         {
             StaffProfileVM model = new StaffProfileVM();
+            if(staffId == 0)
+            {
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                if (user != null)
+                {
+                    var stff = await _staffRepo.FindBy(x => x.UserId == user.Id);
+                    staffId = stff.First().Id;
+                }
+            }
             try
             {
                 Staff staff = await _staffRepo.GetSingle(x => x.Id == staffId, x => x.Qualifications, x => x.Jobs, x => x.Publications, x => x.SupportingDocuments);
@@ -122,6 +133,7 @@ namespace PromotionsWebApp.Controllers
                 model.Qualifications = new List<QualificationVM>();
                 model.Jobs = new List<StaffJobVM>();
                 model.Publications = new List<PublicationVM>();
+                model.SupportingDocumentsId = staff.SupportDocumentsId;
                 model.SupportingDocuments = new SupportingDocumentsVM
                 {
                     IdentityDocumentId = staff.SupportingDocuments.IdentityDocumentId,
@@ -129,7 +141,8 @@ namespace PromotionsWebApp.Controllers
                     ScholarshipInTeachingFormId = staff.SupportingDocuments.ScholarshipInTeachingFormId,
                     CommunityServiceFormId = staff.SupportingDocuments.CommunityServiceFormId,
                     PeerEvalFormId = staff.SupportingDocuments.PeerEvalFormId,
-                    StudentEvalFormId = staff.SupportingDocuments.StudentEvalFormId
+                    StudentEvalFormId = staff.SupportingDocuments.StudentEvalFormId,
+                    SelfScoredEvalutionFormId = staff.SupportingDocuments.SelfScoredEvaluationFormId
                 };
                 if (staff.Publications != null || staff.Publications.Any())
                 {
@@ -215,6 +228,39 @@ namespace PromotionsWebApp.Controllers
                 };
 
                 await _qualificationRepo.Add(item);
+
+
+                var quals = await _qualificationRepo.FindByIncluding(x => x.StaffId == model.StaffId, x => x.CertificateDocument);
+                if (quals != null)
+                {
+                    List<byte[]> pdfs = new List<byte[]>();
+                    foreach (var qual in quals)
+                    {
+                        pdfs.Add(qual.CertificateDocument.Content);
+                    }
+                    var combinedPdf = await PdfUtilities.CombinePDF(pdfs);
+                    var supportDoc = await _supportDocumentsRepo.GetSingle(x => x.StaffId == model.StaffId);
+                    if (supportDoc != null)
+                    {
+                        if (supportDoc.QualificationsDocumentId.HasValue)
+                        {
+                            supportDoc.QualificationsDocument = await _documentRepo.GetSingle(supportDoc.QualificationsDocumentId.Value);
+                            supportDoc.QualificationsDocument.Content = combinedPdf;
+                        }
+                        else
+                        {
+                            supportDoc.QualificationsDocument = new Document
+                            {
+                                FileType = DocumentFileTypeEnum.PDF,
+                                Content = combinedPdf,
+                                FileName = "QualificationsDoc",
+                                AddedDate = DateTime.Now,
+                                ModifiedDate = DateTime.Now
+                            };
+                        }
+                        await _supportDocumentsRepo.Update(supportDoc);
+                    }
+                }
                 TempData["Toast"] = "New Qualification Details has succesfully been added";
             }
             catch (Exception ex)
@@ -229,12 +275,58 @@ namespace PromotionsWebApp.Controllers
             try
             {
                 var qual = await _qualificationRepo.GetSingle(qualificationId);
-                if(qual !=null)
+                if (qual != null)
                 {
                     staffId = qual.StaffId;
                     await _qualificationRepo.Delete(qualificationId);
+                    //Todo CombineQualifications Document
+                    var quals = await _qualificationRepo.FindByIncluding(x => x.StaffId == staffId, x => x.CertificateDocument);
+                    if (quals != null)
+                    {
+                        List<byte[]> pdfs = new List<byte[]>();
+                        if (quals.Any())
+                        {
+                            foreach (var ql in quals)
+                            {
+                                pdfs.Add(ql.CertificateDocument.Content);
+                            }
+
+                            var combinedPdf = await PdfUtilities.CombinePDF(pdfs);
+                            var supportDoc = await _supportDocumentsRepo.GetSingle(x => x.StaffId == staffId);
+                            if (supportDoc != null)
+                            {
+                                if (supportDoc.QualificationsDocumentId.HasValue)
+                                {
+                                    supportDoc.QualificationsDocument = await _documentRepo.GetSingle(supportDoc.QualificationsDocumentId.Value);
+                                    supportDoc.QualificationsDocument.Content = combinedPdf;
+                                }
+                                else
+                                {
+                                    supportDoc.QualificationsDocument = new Document
+                                    {
+                                        FileType = DocumentFileTypeEnum.PDF,
+                                        Content = combinedPdf,
+                                        FileName = "QualificationsDoc",
+                                        AddedDate = DateTime.Now,
+                                        ModifiedDate = DateTime.Now
+                                    };
+                                }
+                                await _supportDocumentsRepo.Update(supportDoc);
+                            }
+                        }
+                        else
+                        {
+                            var supportDoc = await _supportDocumentsRepo.GetSingle(x => x.StaffId == staffId);
+                            if(supportDoc.QualificationsDocumentId.HasValue)
+                            {
+                                await _documentRepo.Delete(supportDoc.QualificationsDocumentId.Value);
+                                supportDoc.QualificationsDocumentId = null;
+                                await _supportDocumentsRepo.Update(supportDoc);
+                            }
+                        }
+                    }
                 }
-                
+
                 TempData["Toast"] = "Qualification has succesfully been deleted";
             }
             catch (Exception ex)
@@ -308,11 +400,11 @@ namespace PromotionsWebApp.Controllers
                     {
                         staff.User.Email = model.Email;
                     }
-                    if (model.ProfileImage != null && model.ProfileImage.Length>0)
+                    if (model.ProfileImage != null && model.ProfileImage.Length > 0)
                     {
                         staff.User.ProfileImage = await model.ProfileImage.GetBytes();
                     }
-                    if (model.Title>0)
+                    if (model.Title > 0)
                     {
                         staff.User.Title = model.Title;
                     }

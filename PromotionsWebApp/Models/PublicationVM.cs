@@ -14,5 +14,11 @@ namespace PromotionsWebApp.Models
         public PublicationType PublicationType { get; set; }
         public string Name { get; set; }
         public int StaffId { get; set; }
+        public override string ToString()
+        {
+            string output = Authors;
+            output += ", " + YearObtained.ToString() + ", " + Name + ", " + PublicationType.ToString();
+            return output;
+        }
     }
 }

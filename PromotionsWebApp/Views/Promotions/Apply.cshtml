@@ -1,0 +1,260 @@
+﻿@using PromotionsWebApp.Models.Promotion
+@model PromotionSubmissionVM
+@{
+    ViewData["Title"] = "Apply for Promotion";
+    PromotionApplicationVM viewModel = ViewData["Model"] as PromotionApplicationVM;
+    List<string> Requirements = new List<string>();
+    Requirements = viewModel.Rank.Description.Split('.').ToList();
+}
+
+<div class="section row">
+    <h4 class="center-align">Apply for Promotion to: @viewModel.Rank.Name Position</h4>
+    <div class="row z-depth-2">
+        <div class="col s12" id="applyForeword">
+            <h5 class="center-align">Application Requirements</h5>
+            <div class="divider"></div>
+            <div class="row">
+                <ul>
+                    @foreach (string sen in Requirements)
+                    {
+                        <li><p>@sen.Trim()</p></li>
+                    }
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col s8 offset-s2">
+                    <a class="btn waves-effect waves-light btn-large red lighten-1" asp-action="Profile" asp-controller="Staff" asp-route-staffId="@Model.StaffId">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Cancel</span>
+                    </a>
+                    <button id="btnStepTwo" class="btn waves-effect waves-light btn-large green lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            send
+                        </span>
+                        <span class="black-text">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 hide" id="applyCheckList">
+            <div class="row">
+                <h5 class="center-align">Application Checklist</h5>
+                <div class="divider"></div>
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="collection">
+                            <li class="collection-item">
+                                <span>Curriculum Vitae</span>
+                                @if (@viewModel.SupportingDocuments.CVId.HasValue)
+                                {
+                                    <span class="material-icons secondary-content green-text">
+                                        done
+                                    </span>
+                                    
+                                }
+                                else
+                                {
+                                    <span class="material-icons secondary-content red-text">
+                                        close
+                                    </span>
+                                }
+                            </li>
+                            <li class="collection-item">
+                                <span>Identity Document</span>
+                                @if (@viewModel.SupportingDocuments.IdentityDocumentId.HasValue)
+                                {
+                                    <span class="material-icons secondary-content green-text">
+                                        done
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="material-icons secondary-content red-text">
+                                        close
+                                    </span>
+                                }
+                            </li>
+                            <li class="collection-item">
+                                <span>Qualifications and Transcripts</span>
+                                @if (@viewModel.SupportingDocuments.QualificationsDocumentId.HasValue)
+                                {
+                                    <span class="material-icons secondary-content green-text">
+                                        done
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="material-icons secondary-content red-text">
+                                        close
+                                    </span>
+                                }
+                            </li>
+                            <li class="collection-item">
+                                <span>Student Evaluation Forms</span>
+                                @if (@viewModel.SupportingDocuments.StudentEvalFormId.HasValue)
+                                {
+                                    <span class="material-icons secondary-content green-text">
+                                        done
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="material-icons secondary-content red-text">
+                                        close
+                                    </span>
+                                }
+                            </li>
+                            <li class="collection-item">
+                                <span>Peer Evaluation Forms</span>
+                                @if (@viewModel.SupportingDocuments.PeerEvalFormId.HasValue)
+                                {
+                                    <span class="material-icons secondary-content green-text">
+                                        done
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="material-icons secondary-content red-text">
+                                        close
+                                    </span>
+                                }
+                            </li>
+                            <li class="collection-item">
+                                <span>Statement on Scholarship in Teaching</span>
+                                @if (@viewModel.SupportingDocuments.ScholarshipInTeachingFormId.HasValue)
+                                {
+                                    <span class="material-icons secondary-content green-text">
+                                        done
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="material-icons secondary-content red-text">
+                                        close
+                                    </span>
+                                }
+                            </li>
+                            <li class="collection-item">
+                                <span>Statement on Community Service</span>
+                                @if (@viewModel.SupportingDocuments.CommunityServiceFormId.HasValue)
+                                {
+                                    <span class="material-icons secondary-content green-text">
+                                        done
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="material-icons secondary-content red-text">
+                                        close
+                                    </span>
+                                }
+                            </li>
+                            @if (viewModel.Rank.Name == "Professor")
+                            {
+                                <li class="collection-item">
+                                    <span>Self Scored Evaluation Form</span>
+                                    @if (@viewModel.SupportingDocuments.SelfScoredEvalutionFormId.HasValue)
+                                    {
+                                        <span class="material-icons secondary-content green-text">
+                                            done
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="material-icons secondary-content red-text">
+                                            close
+                                        </span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <h5 class="center-align">Publications</h5>
+                        @if (@viewModel.Publications != null && @viewModel.Publications.Any())
+                        {
+                            <ul>
+                                @foreach (PublicationVM pub in viewModel.Publications)
+                                {
+                                    <li>
+                                        <span>@pub.ToString()</span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span>No publications in submitted</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s8 offset-s2">
+                    <a class="btn waves-effect waves-light btn-large red lighten-1" asp-action="Profile" asp-controller="Staff" asp-route-staffId="@Model.StaffId">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Cancel</span>
+                    </a>
+                    <button id="btnStepThree" class="btn waves-effect waves-light btn-large green lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            send
+                        </span>
+                        <span class="black-text">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 hide" id="applyUpload">
+            <div class="row">
+                <h5 class="center-align">Motivation Letter</h5>
+                <form id="promotionApplication" asp-action="Apply" asp-controller="Promotions" method="post" role="form" enctype='multipart/form-data'>
+                    <input type="hidden" asp-for="StaffId" />
+                    <div class="row">
+                        <div class="row">
+                            <div class="input-field col s8 offset-s2">
+                                <Label class="active">Upload Motivation Letter</Label><br />
+                                <input type="file" accept="application/pdf" class="validate" asp-for="MotivationLetter" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s8 offset-s2">
+                            <a class="btn modal-close waves-effect waves-light btn-large red lighten-1" asp-action="Profile" asp-controller="Staff" asp-route-staffId="@Model.StaffId">
+                                <span class="material-icons md-dark md-24 matIcon">
+                                    cancel
+                                </span>
+                                <span class="black-text">Cancel</span>
+                            </a>
+                            @if(viewModel.canApply)
+                            {
+                                <button type="submit" id="submitBtn" class="btn waves-effect waves-light btn-large green lighten-1">
+                                <span class="material-icons md-dark md-24 matIcon">
+                                    send
+                                </span>
+                                <span class="black-text">Submit</span>
+                            </button>
+                            }
+                            else
+                            {
+                                <button type="submit" id="submitBtn" class="btn waves-effect waves-light btn-large green lighten-1">
+                                <span class="material-icons md-dark md-24 matIcon">
+                                    send
+                                </span>
+                                <span class="black-text">Submit</span>
+                            </button>
+                            }
+                            
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

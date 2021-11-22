@@ -36,7 +36,7 @@
 }
 <a href="#@modalName" class="tooltipped modal-trigger" id="uploadSupportBtn" data-position="top" data-tooltip="Upload Support Document">Upload</a>
 <div id="@modalName" class="modal grey lighten-5">
-    <form id="supportForm" asp-action="UploadSupportDocument" asp-controller="Document" method="post" role="form" enctype='multipart/form-data'>
+    <form id="supportForm" asp-action="UploadDocument" asp-controller="Document" method="post" role="form" enctype='multipart/form-data'>
         <input type="hidden" asp-for="SupportingsDocumentId" id="docId" />
         <input type="hidden" asp-for="UploadType" />
         <div class="modal-content">

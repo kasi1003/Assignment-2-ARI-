@@ -28,6 +28,8 @@ namespace PromotionsWebApp.Controllers
         protected readonly IRepository<Faculty> _facultyRepo;
         protected readonly IRepository<Qualification> _qualificationRepo;
         protected readonly IRepository<SupportingDocuments> _supportDocumentsRepo;
+        protected readonly IRepository<PromotionDecision> _promotionDecisionRepo;
+        protected readonly IRepository<Promotion> _promotionRepo;
         public BaseController(IServiceScopeFactory factory)
         {
             _departmentRepo = factory.CreateScope().ServiceProvider.GetRequiredService<IRepository<Department>>();
@@ -41,6 +43,8 @@ namespace PromotionsWebApp.Controllers
             _emailSender= factory.CreateScope().ServiceProvider.GetRequiredService<IEmailSender>();
             _publicationRepo = factory.CreateScope().ServiceProvider.GetRequiredService<IRepository<Publication>>();
             _supportDocumentsRepo = factory.CreateScope().ServiceProvider.GetRequiredService<IRepository<SupportingDocuments>>();
+            _promotionRepo =factory.CreateScope().ServiceProvider.GetRequiredService<IRepository<Promotion>>();
+            _promotionDecisionRepo= factory.CreateScope().ServiceProvider.GetRequiredService<IRepository<PromotionDecision>>();
             _userManager = _userRepo.GetUserManager();
             _signInManager = _userRepo.GetSignInManager();
         }

@@ -13,10 +13,12 @@ namespace PromotionsWebApp.Models
 
         public int? IdentityDocumentId { get; set; }
         public int? CVId { get; set; }
+        public int? QualificationsDocumentId { get; set; }
         public int? StudentEvalFormId { get; set; }
         public int? PeerEvalFormId { get; set; }
         public int? CommunityServiceFormId { get; set; }
         public int? ScholarshipInTeachingFormId { get; set; }
+        public int? SelfScoredEvalutionFormId { get; set; }
     }
     public class DocumentVM
     {

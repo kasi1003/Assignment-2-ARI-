@@ -1,5 +1,5 @@
 ﻿@using PromotionsWebApp.Domain.Entities
-@using PromotionsWebApp.Models
+@using PromotionsWebApp.Models.Staff
 @using PromotionsWebApp.Utilities
 @using PromotionsWebApp.ViewComponents
 @using Microsoft.AspNetCore.Authorization
@@ -65,6 +65,7 @@
             </div>
         </div>
     }
+
     <div class="center-align">
         @await Component.InvokeAsync("Pager", new
         {
@@ -74,14 +75,16 @@
     </div>
     <br />
     <br />
+    
     <div class="row">
         <div class="input-field col s12 center-align ">
-            <a asp-action="Index" asp-controller="Home" class="btn waves-effect waves-light btn-large green lighten-1">
-                <span class="material-icons md-dark md-24 matIcon">
+            <a asp-action="Index" asp-controller="Home" class="btn waves-effect waves-light btn-large nustColor lighten-1">
+                <span class="material-icons white-text md-24 matIcon">
                     keyboard_return
                 </span>
-                <span class="black-text">Back</span>
+                <span class="white-text">Back</span>
             </a>
         </div>
     </div>
+    
 </div>

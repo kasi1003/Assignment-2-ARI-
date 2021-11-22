@@ -1,8 +1,9 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />*
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta http-equiv="Content-Language" content="en">
@@ -16,11 +17,9 @@
     <script src="~/js/jquery.js"></script>
     <script src="~/lib/materialize/js/materialize.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/lib/pdf.js/pdf.js"></script>
-    <script src="~/js/docViewer.js"></script>
 
 
- 
+
     @RenderSection("header", required: false)
 </head>
 <body>
@@ -30,36 +29,26 @@
             <li><div class="divider"></div></li>
             @if (User.IsInRole("Staff"))
             {
-                <li><a asp-controller="Home" asp-action="Index">Profile</a></li>
+                <li><a asp-controller="Staff" asp-action="Profile">Profile</a></li>
                 <li><a asp-controller="Promotions" asp-action="Index">Promotions</a></li>
             }
-            @if (User.IsInRole("HOD") || User.IsInRole("Dean"))
+            else
             {
-                <li><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+
                 <li><a asp-controller="Staff" asp-action="Index">Staff</a></li>
-                <li><a asp-controller="Promotion" asp-action="Index">Inbox</a></li>
-            }
-            @if (User.IsInRole("IFEC") || User.IsInRole("PSPC"))
-            {
-                <li><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
-                <li><a asp-controller="Promotion" asp-action="Index">Inbox</a></li>
-            }
-            @if (User.IsInRole("Admin"))
-            {
-                <li><a asp-controller="Staff" asp-action="Index">Staff</a></li>
-                <li><a asp-controller="Vendor" asp-action="Index">Users</a></li>
-                <li><a asp-controller="Account" asp-action="Index">Settings</a></li>
+                <li><a asp-controller="Account" asp-action="Index">Users</a></li>
+                <li><a asp-controller="Promotions" asp-action="Index">Promotions</a></li>
             }
 
         </ul>
         <div class="navbar-fixed">
             <nav>
-                <div class="nav-wrapper blue darken-2">
+                <div class="nav-wrapper nustColor">
                     @if (User.Identity.IsAuthenticated)
                     {
                         <a href="#" data-target="sidenav_menu" class="sidenav-trigger show-on-large"><i class="material-icons">menu</i></a>
                     }
-                    <a asp-action="Index" asp-controller="Home" class="brand-logo center"><img src="~/images/cenoredLogoSmall.jpg" style="max-width:60%;" /></a>
+                    <a asp-action="Index" asp-controller="Home" class="brand-logo center"><img src="~/images/nustLogo.png" style="max-width:60%;" /></a>
                     <ul id='dropdown1' class='dropdown-content'>
                         <li><a asp-action="Profile" asp-controller="Account" asp-route-userId="@User.Identity.Name">Account</a></li>
                         <li>
@@ -119,21 +108,7 @@
             </div>
             @RenderBody()
 
-            <div id="pdfViewerModal" class="modal grey lighten-5">
-                <div class="modal-content">
-                    <div>
-                        <button id="prev">Previous</button>
-                        <button id="next">Next</button>
-                        &nbsp; &nbsp;
-                        <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
-                    </div>
-
-                    <canvas id="documentViewer" style="border: 1px solid black; direction: ltr;"></canvas>
-                </div>
-                <div class="modal-footer">
-                    <a href="#!" class="modal-close waves-effect red btn-flat"><h6>Cancel</h6></a>
-                </div>
-            </div>
+           
 
             <div id="confirmationModal" class="modal grey lighten-5">
                 <div class="modal-content">
@@ -165,7 +140,7 @@
                 onOpen: function () {
                     var instance = M.Datepicker.getInstance($('.datepicker'));
                     instance.options.maxDate = new Date();
-                    instance.options.format = 'dd/mm/yyyy';
+                    instance.options.format = 'mm/dd/yyyy';
                 }
             });
             var source = '@(ViewData["Toast"])';

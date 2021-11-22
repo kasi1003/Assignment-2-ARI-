@@ -3,6 +3,7 @@
 }
 @using PromotionsWebApp.ViewComponents
 @using PromotionsWebApp.Models.Staff
+@using PromotionsWebApp.Models.Qualification
 @using PromotionsWebApp.Domain.Abstract
 @model StaffProfileVM
 
@@ -62,7 +63,7 @@
                                             Year Obtained: @qual.YearObtained
                                         </p>
                                         <span class="secondary-content">
-                                            <a class="tooltipped" onclick="ViewDocument(@qual.CertificateDocumentId)" data-position="top" data-tooltip="View Document"><i class="material-icons">visibility</i></a>
+                                            <a class="tooltipped" target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@qual.CertificateDocumentId" data-position="top" data-tooltip="View Document"><i class="material-icons">visibility</i></a>
                                             <a class="tooltipped" href="#confirmationModal"
                                                onclick="initConfirmModal('Delete', 'Education', '@qual.Id')" data-position="top" data-tooltip="Remove Qualification"><i class="material-icons red-text">delete</i></a>
 
@@ -103,7 +104,7 @@
                                     <li class="collection-item">
                                         <p>
                                             Name: @item.Name <br />
-                                            Authors: @item.Authors
+                                            Authors: @item.Authors<br/>
                                             Publication Type: @item.PublicationType.ToString()<br />
                                             Year Obtained: @item.YearObtained
                                         </p>
@@ -140,9 +141,10 @@
                             @if (Model.SupportingDocuments.CVId.HasValue)
                             {
                                 <span class="material-icons supportIcon green-text">
-                                    tick
-                                </span><br />
-                                <span onclick="ViewDocument(@Model.SupportingDocuments.CVId)">View</span>
+                                    done
+                                </span>
+                                <br />
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.SupportingDocuments.CVId">View</a>
                                 <span> / </span>
                             }
                             else
@@ -160,9 +162,9 @@
                             @if (Model.SupportingDocuments.IdentityDocumentId.HasValue)
                             {
                                 <span class="material-icons supportIcon green-text">
-                                    tick
+                                    done
                                 </span><br />
-                                <span onclick="ViewDocument(@Model.SupportingDocuments.IdentityDocumentId)">View</span>
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.SupportingDocuments.IdentityDocumentId">View</a>
                                 <span> / </span>
                             }
                             else
@@ -180,9 +182,9 @@
                             @if (Model.SupportingDocuments.StudentEvalFormId.HasValue)
                             {
                                 <span class="material-icons supportIcon green-text">
-                                    tick
+                                    done
                                 </span><br />
-                                <span onclick="ViewDocument(@Model.SupportingDocuments.StudentEvalFormId)">View</span>
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.SupportingDocuments.StudentEvalFormId">View</a>
                                 <span> / </span>
                             }
                             else
@@ -202,9 +204,9 @@
                             @if (Model.SupportingDocuments.PeerEvalFormId.HasValue)
                             {
                                 <span class="material-icons supportIcon green-text">
-                                    tick
+                                    done
                                 </span><br />
-                                <span onclick="ViewDocument(@Model.SupportingDocuments.PeerEvalFormId)">View</span>
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.SupportingDocuments.PeerEvalFormId">View</a>
                                 <span> / </span>
                             }
                             else
@@ -222,9 +224,9 @@
                             @if (Model.SupportingDocuments.CommunityServiceFormId.HasValue)
                             {
                                 <span class="material-icons supportIcon green-text">
-                                    tick
+                                    done
                                 </span><br />
-                                <span onclick="ViewDocument(@Model.SupportingDocuments.CommunityServiceFormId)">View</span>
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.SupportingDocuments.CommunityServiceFormId">View</a>
                                 <span> / </span>
                             }
                             else
@@ -242,9 +244,9 @@
                             @if (Model.SupportingDocuments.ScholarshipInTeachingFormId.HasValue)
                             {
                                 <span class="material-icons supportIcon green-text">
-                                    tick
+                                    done
                                 </span><br />
-                                <span onclick="ViewDocument(@Model.SupportingDocuments.ScholarshipInTeachingFormId)">View</span>
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.SupportingDocuments.ScholarshipInTeachingFormId">View</a>
                                 <span> / </span>
                             }
                             else
@@ -300,6 +302,11 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="fixed-action-btn">
+        <a asp-action="Apply" asp-controller="Promotions" asp-route-staffId="@Model.Id" class="btn-floating blue tooltipped" data-position="left" data-tooltip="Apply for Promotion">
+            <i class="large material-icons">add</i>
+        </a>
     </div>
 </div>
 

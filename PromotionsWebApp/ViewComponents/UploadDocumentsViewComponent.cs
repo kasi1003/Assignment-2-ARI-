@@ -24,6 +24,7 @@ namespace PromotionsWebApp.ViewComponents
         }
         public class UploadDocumentsViewModel
         {
+            public UploadDocumentsViewModel() { }
             public UploadDocumentsViewModel(int id,UploadTypeEnum uploadType)
             {
                 SupportingsDocumentId = id;

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Janey Gaimgos\\source\\repos\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj": {}
+    "C:\\Users\\CenoredPC\\source\\repos\\TulongaHishiko\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Janey Gaimgos\\source\\repos\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj": {
+    "C:\\Users\\CenoredPC\\source\\repos\\TulongaHishiko\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Janey Gaimgos\\source\\repos\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj",
+        "projectUniqueName": "C:\\Users\\CenoredPC\\source\\repos\\TulongaHishiko\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj",
         "projectName": "PromotionsWebApp",
-        "projectPath": "C:\\Users\\Janey Gaimgos\\source\\repos\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj",
-        "packagesPath": "C:\\Users\\Janey Gaimgos\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Janey Gaimgos\\source\\repos\\PromotionsWebApp\\PromotionsWebApp\\obj\\",
+        "projectPath": "C:\\Users\\CenoredPC\\source\\repos\\TulongaHishiko\\PromotionsWebApp\\PromotionsWebApp\\PromotionsWebApp.csproj",
+        "packagesPath": "C:\\Users\\CenoredPC\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\CenoredPC\\source\\repos\\TulongaHishiko\\PromotionsWebApp\\PromotionsWebApp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Janey Gaimgos\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\CenoredPC\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -56,14 +56,6 @@
               "target": "Package",
               "version": "[5.0.11, )"
             },
-            "Microsoft.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[5.0.11, )"
-            },
-            "Microsoft.EntityFrameworkCore.Relational": {
-              "target": "Package",
-              "version": "[5.0.11, )"
-            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[5.0.11, )"
@@ -75,6 +67,10 @@
             "NETCore.MailKit": {
               "target": "Package",
               "version": "[2.0.3, )"
+            },
+            "PdfSharp": {
+              "target": "Package",
+              "version": "[1.50.5147, )"
             },
             "System.Drawing.Common": {
               "target": "Package",
@@ -99,7 +95,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.402\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

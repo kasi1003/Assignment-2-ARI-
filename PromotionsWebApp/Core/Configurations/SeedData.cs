@@ -182,14 +182,14 @@ namespace PromotionsWebApp.Core.Configurations
                 "Have a relevant Honours degree (NQF Level 8) " +
                 "with at least two years of lecturing experience at tertiary education " +
                 "level and/or industry experience or an equivalent combination of relevant " +
-                "professional experience.  Excellent English communication skills (oral and written). " +
+                "professional experience. Excellent English communication skills (oral and written). " +
                 "Registered for a relevant Master’s degree (NQF Level 9).",
                 8),
                 new Rank("Lecturer",
                 "A relevant Master’s degree (NQF Level 9) with at least " +
                 "four years of lecturing experience at tertiary education " +
                 "level and/or industry experience or an equivalent combination " +
-                "of relevant professional experience.  " +
+                "of relevant professional experience. " +
                 "Excellent English communication skills (oral and written)." +
                 " Competence to establish professional networks and to maintain " +
                 "links with the industry, as well as experience in developing " +
@@ -260,6 +260,7 @@ namespace PromotionsWebApp.Core.Configurations
             };
         }
 
+        
        
     }
 }

@@ -23,16 +23,18 @@
                         <span asp-validation-for="Authors" class="red-text text-darken-2" />
                     </div>
                 </div>
-                <div class="input-field col s8 offset-s2">
-                    <Label class="select-label active">Publication Type</Label>
-                    <select class="normalSelect" asp-for="PublicationType" asp-items="Html.GetEnumSelectList<PublicationType>()">
-                        <option disabled selected="selected" value="">Please select Publication Type</option>
-                    </select>
-                    <span asp-validation-for="PublicationType" class="red-text text-darken-2" />
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="select-label active">Publication Type</Label>
+                        <select class="normalSelect" asp-for="PublicationType" asp-items="Html.GetEnumSelectList<PublicationType>()">
+                            <option disabled selected="selected" value="">Please select Publication Type</option>
+                        </select>
+                        <span asp-validation-for="PublicationType" class="red-text text-darken-2" />
+                    </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s8 offset-s2">
-                        <Label class="active">Year Obtained</Label>
+                        <Label class="active">Year Published</Label>
                         <input type="text" class="validate" asp-for="YearObtained" />
                         <span asp-validation-for="YearObtained" class="red-text text-darken-2" />
                     </div>

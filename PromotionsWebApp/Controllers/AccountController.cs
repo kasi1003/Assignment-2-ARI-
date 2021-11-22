@@ -266,14 +266,14 @@ namespace PromotionsWebApp.Controllers
                             
                             var token = await _userManager.GeneratePasswordResetTokenAsync(createdUser);
                             var link = Url.Action("Login", "Account", new { }, Request.Scheme);
-                            //await _emailSender.SendNewUserDetails(user.Email, user.UserName, "NewPassword1", link);
+                            await _emailSender.SendNewUserDetails(user.Email, user.UserName, "NewPassword1", link);
                             if (user.Role == UserRoleEnum.Staff)
                             {
                                 Staff newStaff = new Staff(user.Id);
                                 var faculty = await _facultyRepo.GetSingle(user.FacultyId.Value);
                                 var department = await _departmentRepo.GetSingle(user.DepartmentId.Value);
                                 newStaff.StaffNr = model.StaffNr;
-                                newStaff.SupportingDocuments = new SupportingDocuments();
+                                
                                 newStaff.Jobs.Add(new StaffJob
                                 {
                                     DateEmployed = model.DateEmployed,
@@ -283,6 +283,16 @@ namespace PromotionsWebApp.Controllers
                                     Department = department.Name
                                 });
                                 await _staffRepo.Add(newStaff);
+                                var supDoc = new SupportingDocuments
+                                {
+                                    StaffId = newStaff.Id,
+                                    AddedDate = DateTime.Now,
+                                    ModifiedDate = DateTime.Now,
+                                    isDeleted = false
+                                };
+                                await _supportDocumentsRepo.Add(supDoc);
+                                newStaff.SupportDocumentsId = supDoc.Id;
+                                await _staffRepo.Update(newStaff);
                                 TempData["Toast"] = "Staff: " + user.ToString() + " has been successfully been added.";
                                 return RedirectToAction("Index", "Staff");
                             }

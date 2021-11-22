@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PromotionsWebApp.Models
+namespace PromotionsWebApp.Models.Qualification
 {
     public class QualificationVM
     {

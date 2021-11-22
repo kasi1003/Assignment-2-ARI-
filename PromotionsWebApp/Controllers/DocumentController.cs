@@ -19,7 +19,7 @@ namespace PromotionsWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetDocument([FromQuery] int docId)
+        public async Task<IActionResult> GetDocument([FromQuery] int docId)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace PromotionsWebApp.Controllers
                 if (doc != null)
                 {
                     var content = doc.Content;
-                    return Json(content);
+                    return File(content, "application/pdf");
                 }
             }
             catch (Exception ex)
@@ -126,15 +126,16 @@ namespace PromotionsWebApp.Controllers
                             supportDoc.ScholarshipInTeachingFormId = supportDoc.ScholarshipInTeachingForm.Id;
                             break;
                     }
+                    await _supportDocumentsRepo.Update(supportDoc);
                 }
 
                 TempData["Toast"] = "Document has been successfuly upload";
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Profile", new { staffId = staffId });
+                return RedirectToAction("Profile","Staff", new { staffId = staffId });
             }
-            return RedirectToAction("Profile", new { staffId = staffId });
+            return RedirectToAction("Profile","Staff", new { staffId = staffId });
         }
     }
 }

@@ -36,7 +36,7 @@ namespace PromotionsWebApp
         {
             services.AddDbContext<pContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("OnlineConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddIdentity<User, IdentityRole>(options =>

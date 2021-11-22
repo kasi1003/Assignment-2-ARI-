@@ -23,5 +23,7 @@ namespace PromotionsWebApp.Core.Data
         public DbSet<Qualification> Qualification { get; set; }
         public DbSet<Department> Department { get; set; }
         public DbSet<Publication> Publication { get; set; }
+        public DbSet<Promotion> Promotion { get; set; }
+        public DbSet<PromotionDecision> PromotionDecision { get; set; }
     }
 }

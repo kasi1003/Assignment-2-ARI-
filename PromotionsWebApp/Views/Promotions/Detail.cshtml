@@ -1,0 +1,481 @@
+﻿@{
+    ViewData["Title"] = "Promotion Details";
+    string promotionRole = @Model.Promotion.Status.ToString();
+}
+@using PromotionsWebApp.ViewComponents
+@using PromotionsWebApp.Domain.Entities
+@using PromotionsWebApp.Models.Staff
+@using PromotionsWebApp.Models.Promotion
+@using PromotionsWebApp.Domain.Abstract
+@model PromDetailVM
+
+<div class="section">
+
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="col s10">
+                        Promotion Details
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s10">
+                        <span>Date Applied: @Model.Promotion.AddedDate.ToShortDateString()</span><br />
+                        <span>Promotion Rank: @Model.Promotion.Rank.Name</span><br />
+                        <span>
+                            Motivation Letter: <a class="tooltipped" target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.Promotion.MotivationLetterId" data-position="top" data-tooltip="View Document"><i class="material-icons">visibility</i></a>
+                        </span><br />
+                        <span>Promotion Stage: @Model.Promotion.Status.ToString()</span><br />
+                        <span>
+                            Evaluations: <a class="tooltipped modal-trigger" href="#evalModal" data-position="top" data-tooltip="View Evaluations"><i class="material-icons">visibility</i></a>
+                        </span>
+                    </div>
+
+                    @if (@Model.Promotion.Status != PromotionStatusEnum.Approved && @Model.Promotion.Status != PromotionStatusEnum.Rejected)
+                    {
+                        @if (User.IsInRole(promotionRole) || User.IsInRole("Admin"))
+                        {
+                            <div class="row">
+                                <div class="col s6">
+                                    <a class="tooltipped modal-trigger btn btn-floating green" href="#approveModal"
+                               data-position="top" data-tooltip="Approve Application"><i class="material-icons">done</i></a>
+                                </div>
+                                <div class="col s6">
+                                    <a class="tooltipped modal-trigger btn btn-floating red" href="#rejectModal"
+                               data-position="top" data-tooltip="Reject Application"><i class="material-icons">close</i></a>
+                                </div>
+                            </div>
+
+
+                        }
+
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div id="evalModal" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <h4 class="center-align">Evaluations</h4>
+            </div>
+            @if (@Model.Promotion.Status != PromotionStatusEnum.HOD)
+            {
+                @foreach (PromotionDecision eval in Model.Promotion.Evaluations)
+                {
+                    <div class="row">
+                        <div class="col s10">
+                            <span>User: @eval.User.ToString()</span><br />
+                            <span>Role: @eval.User.Role</span><br />
+                            <span>Decision: @eval.Decision.ToString()</span><br />
+                            <span>Remarks: @eval.Remarks</span><br />
+                            <span>
+                                Submission: <a class="tooltipped" target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@eval.SubmissionDocumentId" data-position="top" data-tooltip="View Document"><i class="material-icons">visibility</i></a>
+                            </span><br />
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <h4>No Evaluations yet</h4>
+
+            }
+        </div>
+        <div class="modal-footer">
+            <div class="input-field col s8 offset-s2">
+                <a class="btn modal-close waves-effect waves-light btn-large red lighten-1">
+                    <span class="material-icons md-dark md-24 matIcon">
+                        cancel
+                    </span>
+                    <span class="black-text">Close</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div id="approveModal" class="modal">
+        <form asp-action="Approve" asp-controller="Promotions" method="post" role="form" enctype='multipart/form-data'>
+            <div class="modal-content">
+                <div class="row">
+                    <h4 class="center-align">Approve Promotion</h4>
+                    <div class="row">
+                        <input type="hidden" asp-for="AcceptDec.PromotionId" />
+                        <div class="input-field col s12">
+                            <label for="#remarks">Remarks</label>
+                            <textarea type="text" class="materialize-textarea" asp-for="AcceptDec.Remarks" required></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <Label class="active">Upload Submission</Label><br />
+                            <input type="file" accept="application/pdf" class="validate" asp-for="AcceptDec.Submission" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="input-field col s8 offset-s2">
+                    <a class="btn modal-close waves-effect waves-light btn-large red lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Close</span>
+                    </a>
+                    <button type="submit" class="btn modal-close waves-effect waves-light btn-large green lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Submit</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="rejectModal" class="modal">
+        <form asp-action="Reject" asp-controller="Promotions" method="post" role="form" enctype='multipart/form-data'>
+            <div class="modal-content">
+                <div class="row">
+                    <h4 class="center-align">Reject Promotion</h4>
+                    <div class="row">
+                        <input type="hidden" asp-for="RejectDec.PromotionId" />
+                        <div class="input-field col s12">
+                            <label for="#remarks">Remarks</label>
+                            <textarea type="text" class="materialize-textarea" asp-for="RejectDec.Remarks" required></textarea>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <Label class="active">Upload Submission</Label><br />
+                            <input type="file" accept="application/pdf" class="validate" asp-for="RejectDec.Submission" required />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="input-field col s8 offset-s2">
+                    <a class="btn modal-close waves-effect waves-light btn-large red lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Close</span>
+                    </a>
+                    <button type="submit" class="btn modal-close waves-effect waves-light btn-large green lighten-1">
+                        <span class="material-icons md-dark md-24 matIcon">
+                            cancel
+                        </span>
+                        <span class="black-text">Submit</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="col s10">
+                        Staff Details
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s2">
+                        <img id="profilePicture" src="data:image;base64,@System.Convert.ToBase64String(Model.Promotion.Staff.User.ProfileImage)" width="100" height="100" class="circle"><br />
+                    </div>
+                    <div class="col s10">
+                        <span>Staff Number: @Model.Promotion.Staff.StaffNr</span><br />
+                        <span>Name: @Model.Promotion.Staff.User.ToString()</span><br />
+                        <span>Job: @Model.Promotion.Staff.Jobs.Where(x=>x.IsCurrent).Single().Rank.Name</span><br />
+                        <span>Faculty: @Model.Promotion.Staff.User.Faculty.Name</span><br />
+                        <span>Department: @Model.Promotion.Staff.User.Department.Name</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="col s10">
+                        Education
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        @if (Model.Promotion.Staff.Qualifications.Any())
+                        {
+                            <ul class="collection">
+
+                                @foreach (Qualification qual in Model.Promotion.Staff.Qualifications)
+                                {
+                                    <li class="collection-item">
+                                        <p>
+                                            Name: @qual.Name <br />
+                                            Institution: @qual.Institution<br />
+                                            Year Obtained: @qual.YearObtained
+                                        </p>
+                                        <span class="secondary-content">
+                                            <a class="tooltipped" target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@qual.CertificateDocumentId" data-position="top" data-tooltip="View Document"><i class="material-icons">visibility</i></a>
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="centered">No Qualifications uploaded</span>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="col s10">
+                        Publications
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        @if (Model.Promotion.Staff.Publications.Any())
+                        {
+                            <ul class="collection">
+
+                                @foreach (Publication item in Model.Promotion.Staff.Publications)
+                                {
+                                    <li class="collection-item">
+                                        <p>
+                                            Name: @item.Name <br />
+                                            Authors: @item.Authors<br />
+                                            Publication Type: @item.PublicationType.ToString()<br />
+                                            Year Obtained: @item.YearObtained
+                                        </p>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="centered">No Publications uploaded</span>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="center-align">
+                        Supporting Documents
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Curriculum Vitae</span><br />
+                            @if (Model.Promotion.Staff.SupportingDocuments.CVId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    done
+                                </span>
+                                <br />
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.Promotion.Staff.SupportingDocuments.CVId">View</a>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span>
+
+                                <br />
+                            }
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Identity Document</span><br />
+                            @if (Model.Promotion.Staff.SupportingDocuments.IdentityDocumentId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    done
+                                </span>
+
+                                <br />
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.Promotion.Staff.SupportingDocuments.IdentityDocumentId)">View</a>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span>
+
+                                <br />
+                            }
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Student Evaluation Forms</span><br />
+                            @if (Model.Promotion.Staff.SupportingDocuments.StudentEvalFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    done
+                                </span>
+
+                                <br />
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.Promotion.Staff.SupportingDocuments.StudentEvalFormId)">View</a>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span>
+
+                                <br />
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Peer Evaluation Forms</span><br />
+                            @if (Model.Promotion.Staff.SupportingDocuments.PeerEvalFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    done
+                                </span>
+
+                                <br />
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.Promotion.Staff.SupportingDocuments.PeerEvalFormId">View</a>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span>
+
+                                <br />
+                            }
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Community Service Statement</span><br />
+                            @if (Model.Promotion.Staff.SupportingDocuments.CommunityServiceFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    done
+                                </span>
+
+                                <br />
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.Promotion.Staff.SupportingDocuments.CommunityServiceFormId">View</a>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span>
+
+                                <br />
+                            }
+                        </div>
+                    </div>
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel z-depth-2">
+                            <span class="center-align">Scholarship in Teaching Statement</span><br />
+                            @if (Model.Promotion.Staff.SupportingDocuments.ScholarshipInTeachingFormId.HasValue)
+                            {
+                                <span class="material-icons supportIcon green-text">
+                                    done
+                                </span>
+
+                                <br />
+                                <a target="_blank" asp-action="GetDocument" asp-controller="Document" asp-route-docId="@Model.Promotion.Staff.SupportingDocuments.ScholarshipInTeachingFormId">View</a>
+                            }
+                            else
+                            {
+                                <span class="material-icons supportIcon red-text">
+                                    close
+                                </span>
+
+                                <br />
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel white">
+                <div class="row">
+                    <div class="center-align">
+                        Job History
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        @if (Model.Promotion.Staff.Jobs.Any())
+                        {
+                            <ul class="collection">
+
+                                @foreach (StaffJob item in Model.Promotion.Staff.Jobs)
+                                {
+                                    <li class="collection-item">
+                                        <p>
+                                            Rank: @item.Rank.Name<br />
+                                            Faculty: @item.Faculty<br />
+                                            Department: @item.Department<br />
+                                            Date Employed: @item.DateEmployed.ToShortDateString()<br />
+                                            @if (!item.IsCurrent)
+                                            {
+                                                <span>Date Left: @item.DateLeft.Value.ToShortDateString()</span>
+                                            }
+                                        </p>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="centered">No Job History</span>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }
+
+
+
+
+
+
+
