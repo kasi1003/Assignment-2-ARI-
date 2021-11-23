@@ -4,14 +4,14 @@
         if (selectedRole > 0) {
             $("#facultySelect").val(0);
             $("#facultySelect").change();
-            if (selectedRole == 8) {
+            if (selectedRole == 7) {
                 $('#staffJobOptions').show();
             } else {
                 $('#staffJobOptions').hide();
                 $('#rankSelect').val(0);
                 $('#rankSelect').change();
             }
-            if (selectedRole == 6 || selectedRole == 7 || selectedRole == 8) {
+            if (selectedRole == 5 || selectedRole == 6 || selectedRole == 7) {
                 $('#staffLocationOptions').show();
             } else {
                 $('#staffLocationOptions').hide();
@@ -23,7 +23,7 @@
         var facultyId = $("#facultySelect").val();
         if (facultyId > 0) {
             var selectedRole = $("#roleSelect").val();
-            if (selectedRole == 7 || selectedRole == 8) {
+            if (selectedRole == 6 || selectedRole == 7) {
                 var $depList = $('#departmentSelect');
                 var link = "/Account/GetDepartmentsJson?facultyId=" + facultyId;
                 $.ajax({
