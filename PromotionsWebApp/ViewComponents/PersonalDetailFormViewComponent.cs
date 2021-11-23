@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PromotionsWebApp.Domain.Abstract;
+using PromotionsWebApp.Models.Staff;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -25,10 +26,13 @@ namespace PromotionsWebApp.ViewComponents
         public class PersonalDetailViewModel
         {
             public PersonalDetailViewModel() { }
-            public PersonalDetailViewModel(int staffId)
+            public PersonalDetailViewModel(StaffProfileVM model)
             {
-                StaffId = staffId;
-                Title = 0;
+                StaffId = model.Id;
+                Title = model.Title;
+                FirstName = model.Firstname;
+                Surname = model.Surname;
+                StaffNr = model.StaffNr;
             }
             public int StaffId { get; set; }
  
@@ -38,10 +42,7 @@ namespace PromotionsWebApp.ViewComponents
         
             public string Surname { get; set; }
            
-            public string StaffNr { get; set; }
-           
-            [EmailAddress]
-            public string Email { get; set; }
+            public string StaffNr { get; set; }                 
          
             public IFormFile ProfileImage { get; set; }
         }

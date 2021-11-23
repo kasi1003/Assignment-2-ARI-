@@ -54,11 +54,18 @@
                 }
             </ul>
         </div>
+        <div class="center-align">
+        @await Component.InvokeAsync("Pager", new
+        {
+            model = new PagerViewComponent.PagerViewModel
+                        (prevPageNr, nextPageNr, Search, LinkUrl, LinkArea, nextDisabled, prevDisabled)
+        })
+    </div>
     }
     else
     {
         <div class="col s12 m12 l12">
-            <div class="card-panel blue darken-2 center-align">
+            <div class="card-panel nustColor center-align">
                 <span class="white-text">
                     No Staff are currently existing in the system.
                 </span>
@@ -66,13 +73,7 @@
         </div>
     }
 
-    <div class="center-align">
-        @await Component.InvokeAsync("Pager", new
-        {
-            model = new PagerViewComponent.PagerViewModel
-                        (prevPageNr, nextPageNr, Search, LinkUrl, LinkArea, nextDisabled, prevDisabled)
-        })
-    </div>
+    
     <br />
     <br />
     

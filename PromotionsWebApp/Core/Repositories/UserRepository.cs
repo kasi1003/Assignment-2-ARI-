@@ -37,12 +37,14 @@ namespace PromotionsWebApp.Core.Repositories
         public async Task<IdentityResult> Delete(User user)
         {
             //remove old claims & roles
-            var userClaims = await _userManager.GetClaimsAsync(user);
-            var userRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveClaimsAsync(user, userClaims);
-            await _userManager.RemoveFromRolesAsync(user, userRoles);
-            user.isDeleted = true;
-            return await _userManager.UpdateAsync(user);
+            User user1 = await _userManager.FindByIdAsync(user.Id);
+            var userClaims = await _userManager.GetClaimsAsync(user1);
+            var userRoles = await _userManager.GetRolesAsync(user1);
+            await _userManager.RemoveClaimsAsync(user1, userClaims);
+            await _userManager.RemoveFromRolesAsync(user1, userRoles);
+            user1.isDeleted = true;
+            user1.UserName = "Deleted" + user1.Id;
+            return await _userManager.UpdateAsync(user1);
         }
 
         public async Task<IdentityResult> Update(User user)

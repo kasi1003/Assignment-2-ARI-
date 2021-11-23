@@ -115,7 +115,7 @@ namespace PromotionsWebApp.Controllers
         {
             if (User.IsInRole("Admin"))
             {
-                IEnumerable<User> users = _userManager.Users.Where(x=>x.Role!=UserRoleEnum.Staff).AsEnumerable();
+                IEnumerable<User> users = _userManager.Users.Where(x=>x.Role!=UserRoleEnum.Staff && x.isDeleted==false).AsEnumerable();
                 List<UserVM> userList = new List<UserVM>();
 
                 if (searchString != null)
@@ -190,14 +190,14 @@ namespace PromotionsWebApp.Controllers
                     ModelState.AddModelError(String.Empty, "User Role is required");
                     didError = true;
                 }
-                else if ((int)model.Role > 5)
+                else if ((int)model.Role > 4)
                 {
                     if (model.FacultyId < 1)
                     {
                         ModelState.AddModelError(String.Empty, "User Faculty is required");
                         didError = true;
                     }
-                    if ((int)model.Role > 6)
+                    if ((int)model.Role > 5)
                     {
                         if (model.DepartmentId < 1)
                         {
@@ -238,16 +238,21 @@ namespace PromotionsWebApp.Controllers
                 //add user to system
                 var user = new User(model.Title, model.FirstName, model.Surname,
                                 model.Role, model.Email, model.FacultyId.Value, model.DepartmentId.Value);
-                var users = await _userManager.FindByEmailAsync(user.Email);
+                var users = _userRepo.Get();
+              
                 if (users != null)
                 {
-                    if (!users.isDeleted)
+                    foreach(User usr in users.Where(x=>x.Email==user.Email))
                     {
-                        ModelState.AddModelError(string.Empty, "Email address is already assigned to another account");
-                        await GetFacultySelect();
-                        await GetRankSelect();
-                        return View(model);
+                        if (usr.isDeleted == false)
+                        {
+                            ModelState.AddModelError(string.Empty, "Email address is already assigned to another account");
+                            await GetFacultySelect();
+                            await GetRankSelect();
+                            return View(model);
+                        }
                     }
+                    
 
                 }
                 var ir = await _userManager.CreateAsync(user);
@@ -265,15 +270,13 @@ namespace PromotionsWebApp.Controllers
                             //send email here to user with details
                             
                             var token = await _userManager.GeneratePasswordResetTokenAsync(createdUser);
-                            var link = Url.Action("Login", "Account", new { }, Request.Scheme);
-                            await _emailSender.SendNewUserDetails(user.Email, user.UserName, "NewPassword1", link);
                             if (user.Role == UserRoleEnum.Staff)
                             {
                                 Staff newStaff = new Staff(user.Id);
                                 var faculty = await _facultyRepo.GetSingle(user.FacultyId.Value);
                                 var department = await _departmentRepo.GetSingle(user.DepartmentId.Value);
                                 newStaff.StaffNr = model.StaffNr;
-                                
+
                                 newStaff.Jobs.Add(new StaffJob
                                 {
                                     DateEmployed = model.DateEmployed,
@@ -293,8 +296,18 @@ namespace PromotionsWebApp.Controllers
                                 await _supportDocumentsRepo.Add(supDoc);
                                 newStaff.SupportDocumentsId = supDoc.Id;
                                 await _staffRepo.Update(newStaff);
+
+                                var link = Url.Action("Login", "Account", new { }, Request.Scheme);
+                                await _emailSender.SendNewUserDetails(user.Email, user.UserName, "NewPassword1", link);
                                 TempData["Toast"] = "Staff: " + user.ToString() + " has been successfully been added.";
                                 return RedirectToAction("Index", "Staff");
+                            }
+                            else
+                            {
+                                var link = Url.Action("Login", "Account", new { }, Request.Scheme);
+                                await _emailSender.SendNewUserDetails(user.Email, user.UserName, "NewPassword1", link);
+                                TempData["Toast"] = "User: " + user.ToString() + " has been successfully been added.";
+                                return RedirectToAction(nameof(AccountController.Index), "Account");
                             }
                         }
                         else
@@ -323,7 +336,7 @@ namespace PromotionsWebApp.Controllers
                 }
 
 
-                TempData["Toast"] = "User: " + user.ToString() + " has been successfully been added.";
+                
             }
             catch (Exception ex)
             {
@@ -337,7 +350,7 @@ namespace PromotionsWebApp.Controllers
                 TempData["Toast"] = "An error occured, if the issue persists please contact the developer";
                 return RedirectToAction(nameof(AccountController.Index), "Account");
             }
-            return RedirectToAction(nameof(AccountController.Index), "Account");
+           
         }
 
 
@@ -411,11 +424,22 @@ namespace PromotionsWebApp.Controllers
                 user.Title = model.Title;
                 user.FirstName = model.FirstName;
                 user.LastName = model.Surname;
+                user.ProfileImage = await model.ProfileImage.GetBytes();
                 if (User.IsInRole("Admin"))
                 {
+                    
                     user.Role = model.Role;
-                    user.DepartmentId = model.DepartmentId;
-                    user.FacultyId = model.FacultyId;
+                    if((int)user.Role >4)
+                    {
+                        user.DepartmentId = model.DepartmentId;
+                        user.FacultyId = model.FacultyId;
+                    }
+                    else
+                    {
+                        user.DepartmentId = null;
+                        user.FacultyId = null;
+                    }
+                   
                 }
                 if(user.Email != model.Email)
                 {
@@ -449,7 +473,7 @@ namespace PromotionsWebApp.Controllers
                 TempData["Toast"] = "An error occured, if the issue persists please contact the developer";
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            if (User.IsInRole("Master"))
+            if (User.IsInRole("Admin"))
                 return RedirectToAction(nameof(AccountController.Index), "Account");
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
@@ -461,7 +485,6 @@ namespace PromotionsWebApp.Controllers
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 user.Email = "email@email.com";
-                user.UserName = "Deleted";
                 user.FirstName = "Deleted";
                 user.LastName = "Deleted";
                 user.isDeleted = true;

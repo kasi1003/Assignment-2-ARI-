@@ -17,7 +17,7 @@
                         Personal Details
                     </div>
                     <div class="col s2">
-                        @await Component.InvokeAsync("PersonalDetailForm", new { model = new PersonalDetailFormViewComponent.PersonalDetailViewModel(Model.Id) })
+                        @await Component.InvokeAsync("PersonalDetailForm", new { model = new PersonalDetailFormViewComponent.PersonalDetailViewModel(Model) })
 
                     </div>
                 </div>

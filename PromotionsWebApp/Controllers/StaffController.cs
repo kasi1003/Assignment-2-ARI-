@@ -68,6 +68,8 @@ namespace PromotionsWebApp.Controllers
                         Id = staff.Id,
                         Username = staff.User.ToString(),
                         UserId = staff.UserId,
+                        Firstname = staff.User.FirstName,
+                        Surname = staff.User.LastName,
                         ProfileImage = staff.User.ProfileImage
                     };
                     if (staff.Jobs != null && staff.Jobs.Any())
@@ -102,10 +104,10 @@ namespace PromotionsWebApp.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Profile(int staffId=0)
+        public async Task<IActionResult> Profile(int staffId = 0)
         {
             StaffProfileVM model = new StaffProfileVM();
-            if(staffId == 0)
+            if (staffId == 0)
             {
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 if (user != null)
@@ -127,6 +129,9 @@ namespace PromotionsWebApp.Controllers
                 model.Department = user.Department.Name;
                 model.Faculty = user.Department.Faculty.Name;
                 model.StaffNr = staff.StaffNr;
+                model.Firstname = user.FirstName;
+                model.Surname = user.LastName;
+                model.Title = user.Title;
                 model.Rank = staff.Jobs.Where(x => x.IsCurrent).First().Rank.Name;
                 model.ProfileImage = user.ProfileImage;
                 model.Name = user.ToString();
@@ -208,7 +213,27 @@ namespace PromotionsWebApp.Controllers
 
             return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> Delete([FromQuery] int staffId)
+        {
+            try
+            {
+                var stff = await _staffRepo.GetSingle(x => x.Id == staffId);
+                var user = await _userManager.FindByIdAsync(stff.UserId);
+                await _staffRepo.Delete(stff.Id);
+                await _userRepo.Delete(user);
 
+                
+
+                TempData["Toast"] = "Staff has been successfully been deleted.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Toast"] = "An error occured, if the issue persists please contact the developer";
+                return RedirectToAction(nameof(AccountController.Index), "Staff");
+            }
+            return RedirectToAction(nameof(AccountController.Index), "Staff");
+        }
         //Add Qualification
         public async Task<IActionResult> UpdateEducation(EducationViewModel model)
         {
@@ -317,7 +342,7 @@ namespace PromotionsWebApp.Controllers
                         else
                         {
                             var supportDoc = await _supportDocumentsRepo.GetSingle(x => x.StaffId == staffId);
-                            if(supportDoc.QualificationsDocumentId.HasValue)
+                            if (supportDoc.QualificationsDocumentId.HasValue)
                             {
                                 await _documentRepo.Delete(supportDoc.QualificationsDocumentId.Value);
                                 supportDoc.QualificationsDocumentId = null;
@@ -380,6 +405,7 @@ namespace PromotionsWebApp.Controllers
             try
             {
                 Staff staff = await _staffRepo.GetSingle(model.StaffId);
+
                 if (staff != null)
                 {
                     staff.User = await _userManager.FindByIdAsync(staff.UserId);
@@ -396,10 +422,6 @@ namespace PromotionsWebApp.Controllers
                     {
                         staff.User.LastName = model.Surname;
                     }
-                    if (model.Email != null || model.Email != "")
-                    {
-                        staff.User.Email = model.Email;
-                    }
                     if (model.ProfileImage != null && model.ProfileImage.Length > 0)
                     {
                         staff.User.ProfileImage = await model.ProfileImage.GetBytes();
@@ -408,6 +430,7 @@ namespace PromotionsWebApp.Controllers
                     {
                         staff.User.Title = model.Title;
                     }
+                    await _userManager.UpdateAsync(staff.User);
                     TempData["Toast"] = "Personal Details has succesfully been updated";
                 }
 

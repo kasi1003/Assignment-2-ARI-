@@ -1,4 +1,5 @@
-﻿using PromotionsWebApp.Models.Qualification;
+﻿using PromotionsWebApp.Domain.Abstract;
+using PromotionsWebApp.Models.Qualification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,9 @@ namespace PromotionsWebApp.Models.Staff
         public byte[] ProfileImage { get; set; }
         public string StaffNr { get; set; }
         public string Rank { get; set; }
+        public TitleEnum Title { get; set; }
+        public string Firstname { get; set; }
+        public string Surname { get; set; }
         public string Name { get; set; }
         public string Faculty { get; set; }
         public string Department { get; set; }

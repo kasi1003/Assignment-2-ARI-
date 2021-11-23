@@ -78,10 +78,6 @@ namespace PromotionsWebApp.Controllers
                         pro.Staff.Qualifications = qual.ToList();
                         pro.Staff.SupportingDocuments = sup;
                         var eval = await _promotionDecisionRepo.FindByIncluding(x => x.Id == pro.Id);
-                        foreach (PromotionDecision item in eval.ToList())
-                        {
-                            item.User = await _userManager.FindByIdAsync(item.UserId);
-                        }
                         var jobs = await _jobRepo.FindByIncluding(x => x.Id == pro.Staff.Id, x => x.Rank);
                         pro.Staff.Jobs = jobs.ToList();
                         pro.Evaluations = eval.ToList();
@@ -133,10 +129,6 @@ namespace PromotionsWebApp.Controllers
                     pro.Staff.Qualifications = qual.ToList();
                     pro.Staff.SupportingDocuments = sup;
                     var eval = await _promotionDecisionRepo.FindByIncluding(x => x.PromotionId == pro.Id);
-                    foreach (PromotionDecision item in eval.ToList())
-                    {
-                        item.User = await _userManager.FindByIdAsync(item.UserId);
-                    }
                     var jobs = await _jobRepo.FindByIncluding(x => x.Id == pro.Staff.Id, x => x.Rank);
                     pro.Staff.Jobs = jobs.ToList();
                     pro.Evaluations = eval.ToList();
@@ -177,6 +169,8 @@ namespace PromotionsWebApp.Controllers
                         Decision = PromotionStageApprovalEnum.Accepted,
                         Remarks = model.AcceptDec.Remarks,
                         UserId = user.Id,
+                        UserName = user.ToString(),
+                        Role = user.Role.ToString()
 
                     };
                     if (model.AcceptDec.Submission != null)
@@ -188,8 +182,32 @@ namespace PromotionsWebApp.Controllers
                         };
                     }
                     promotion.Evaluations.Add(des);
-                    int status = (int)promotion.Status;
-                    status++;
+                    var stffJobs = await _jobRepo.FindByIncluding(x => x.StaffId == promotion.StaffId, x => x.Rank);
+                    var current = stffJobs.Where(x => x.IsCurrent).FirstOrDefault();
+                    int status = 0;
+                    if(current.Rank.Name == "Associate Professor")
+                    {
+                        if(promotion.Status == PromotionStatusEnum.Dean)
+                        {
+                            status = (int)PromotionStatusEnum.PSPC;
+                        }
+                        else
+                        {
+                            status++;
+                        }
+                    }
+                    else 
+                    {
+                        if (promotion.Status == PromotionStatusEnum.Dean)
+                        {
+                            status = (int)PromotionStatusEnum.IFEC;
+                        }
+                        else
+                        {
+                            status++;
+                        }
+                    }
+
                     promotion.Status = (PromotionStatusEnum)status;
                     await _promotionRepo.Update(promotion);
                     if (promotion.Status == PromotionStatusEnum.Approved)

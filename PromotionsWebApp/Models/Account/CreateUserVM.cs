@@ -1,4 +1,5 @@
-﻿using PromotionsWebApp.Domain.Abstract;
+﻿using Microsoft.AspNetCore.Http;
+using PromotionsWebApp.Domain.Abstract;
 using PromotionsWebApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace PromotionsWebApp.Models.Account
         public string Id { get; set; }
         [Required]
         public TitleEnum Title { get; set; }
-        public byte[] ProfileImage { get; set; }
+        public IFormFile ProfileImage { get; set; }
         [Required]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }

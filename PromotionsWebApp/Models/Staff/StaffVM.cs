@@ -13,6 +13,9 @@ namespace PromotionsWebApp.Models.Staff
         public string StaffNr { get; set; }
         public string UserId { get; set; }
         public string Username { get; set; }
+        public TitleEnum Title { get; set; }
+        public string Firstname { get; set; }
+        public string Surname { get; set; } 
         public byte[] ProfileImage { get; set; }
         public string StaffJob { get; set; }
         public string Department { get; set; }

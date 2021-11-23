@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Create User";
     SelectList facultyList = (SelectList)ViewData["Faculties"];
     SelectList rankList = (SelectList)ViewData["Ranks"];
@@ -8,13 +7,14 @@
 @using PromotionsWebApp.Domain.Abstract
 @using PromotionsWebApp.Models.Account
 @model CreateUserVM
-<form asp-action="Profile" asp-controller="Account" method="post" role="form" class="center-align">
+<form asp-action="Profile" asp-controller="Account" method="post" role="form" class="center-align" enctype='multipart/form-data'>
     <div class="row z-depth-2">
         <h4 class="center-align">Update User Details</h4>
         <div class="divider"></div>
         <div class="row">
             <div class="col s12">
                 <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Email" />
                 <div class="red-text" asp-validation-summary="All"></div>
                 <div class="row">
                     <div class="input-field col s8 offset-s2">
@@ -41,8 +41,15 @@
                 <div class="row">
                     <div class="input-field col s8 offset-s2">
                         @Html.LabelFor(model => model.Email)
-                        <input type="text" class="validate" asp-for="Email" />
+                        <input type="text" class="validate" asp-for="Email" disabled />
                         <span asp-validation-for="Email" class="red-text text-darken-2" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                        <Label class="active">Profile Image</Label><br />
+                        <input type="file" accept="image/*" class="validate" asp-for="ProfileImage" />
+                        <span asp-validation-for="ProfileImage" class="red-text text-darken-2" />
                     </div>
                 </div>
                 @if (User.IsInRole("Admin"))
@@ -147,10 +154,12 @@
 </form>
 @section Scripts {
 
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <script>
-        $(document).ready(function () {
-            $('select').formSelect();
-        });
-    </script>
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+ }
+<script>
+    $(document).ready(function () {
+        $('select').formSelect();
+    });
+</script>
 }

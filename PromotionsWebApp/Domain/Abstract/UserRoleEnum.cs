@@ -11,7 +11,6 @@ namespace PromotionsWebApp.Domain.Abstract
         VC,
         PSPC,
         IFEC,
-        HR,
         Dean,
         HOD,
         Staff

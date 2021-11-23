@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace PromotionsWebApp.Domain.Settings
 {
@@ -23,33 +24,38 @@ namespace PromotionsWebApp.Domain.Settings
         private async Task SendEmailAsync(EmailMessage model)
         {
             string sMessage;
-            SmtpClient smtpClient = new SmtpClient();
+            SmtpClient smtp = new SmtpClient();
 
             MailMessage message = new MailMessage();
             try
             {
+                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
-                MailAddress fromAddress = new MailAddress(_emailConfig.Sender, "Promotions Web App");
-                smtpClient.UseDefaultCredentials = false;
-                smtpClient.Host = _emailConfig.SmtpServer;
-                smtpClient.Port = _emailConfig.Port;
-                message.From = fromAddress;
 
-                MailAddress toAddress = new MailAddress(model.To);
-                message.To.Add(toAddress);
-                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtpClient.EnableSsl = true;
-                smtpClient.Credentials = new System.Net.NetworkCredential(_emailConfig.UserName, _emailConfig.Password);
+                //set the addresses 
+                message.From = new MailAddress(_emailConfig.Sender,"Promotions Web App"); //IMPORTANT: This must be same as your smtp authentication address.
+                message.To.Add(model.To);
 
+                //set the content 
                 message.Subject = model.Subject;
                 message.Body = model.Content;
                 message.IsBodyHtml = true;
+                //send the message 
+                smtp = new SmtpClient(_emailConfig.SmtpServer);
 
+                //IMPORANT:  Your smtp login email MUST be same as your FROM address. 
+                NetworkCredential Credentials = new NetworkCredential(_emailConfig.Sender, _emailConfig.Password);
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = Credentials;
+                smtp.Port = _emailConfig.Port;    //alternative port number is 8889
+                smtp.EnableSsl = false;
                 if (model.Attachment != null)
                 {
                     message.Attachments.Add(new Attachment(new MemoryStream(model.Attachment.Content), model.Attachment.FileName));
                 }
-                smtpClient.Send(message);
+                smtp.Send(message);
+
+              
                 sMessage = "Email sent.";
 
             }
@@ -144,7 +150,7 @@ namespace PromotionsWebApp.Domain.Settings
         private string CreateInboxNotificationText(string link)
         {
             var output = "";
-            output = string.Format("<p>Good Day,</p><p>There are some items in your inbox that require your attention/p>" +
+            output = string.Format("<p>Good Day,</p><p>There are some items in your inbox that require your attention</p>" +
                                     "<p>Please attend to them.</p>" +
                                     "<p>{0}</p>" +
                                      "<p>Kind Regards,<br/>Administrator<br/>Promotions Web App</p>", link);
