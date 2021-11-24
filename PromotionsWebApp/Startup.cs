@@ -34,7 +34,7 @@ namespace PromotionsWebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<pContext>(options =>
+            services.AddDbContext<pContext>(options =>  
                 options.UseSqlServer(
                     Configuration.GetConnectionString("OnlineConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();

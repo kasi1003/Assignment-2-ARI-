@@ -20,7 +20,7 @@ namespace PromotionsWebApp.Core.Repositories
             _signInManager = signInManager;
         }
 
-        public IQueryable<User> Get() => _userManager.Users;
+        public IQueryable<User> Get() => _userManager.Users.Where(x=>x.isDeleted==false);
 
         public User GetByEmail(string email) => _userManager.Users.First(u => u.Email == email);
 

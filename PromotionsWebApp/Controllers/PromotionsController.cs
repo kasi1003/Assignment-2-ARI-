@@ -44,28 +44,7 @@ namespace PromotionsWebApp.Controllers
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 if (user != null)
                 {
-                    switch (user.Role)
-                    {
-                        case UserRoleEnum.Staff:
-                            var staff = await _staffRepo.GetSingle(x => x.UserId == user.Id);
-                            proms = promotions.Where(x => x.StaffId == staff.Id).ToList();
-                            break;
-                        case UserRoleEnum.HOD:
-                            proms = promotions.Where(x => x.Staff.User.DepartmentId == user.DepartmentId).ToList();
-                            break;
-                        case UserRoleEnum.Dean:
-                            proms = promotions.Where(x => x.Staff.User.FacultyId == user.FacultyId).ToList();
-                            break;
-                        case UserRoleEnum.IFEC:
-                            proms = promotions.Where(x => x.Status == PromotionStatusEnum.IFEC).ToList();
-                            break;
-                        case UserRoleEnum.PSPC:
-                            proms = promotions.Where(x => x.Status == PromotionStatusEnum.PSPC).ToList();
-                            break;
-                        case UserRoleEnum.VC:
-                            proms = promotions.Where(x => x.Status == PromotionStatusEnum.VC).ToList();
-                            break;
-                    }
+                    
                     foreach (Promotion pro in proms)
                     {
                         pro.Staff.User = await _userManager.FindByIdAsync(pro.Staff.UserId);
@@ -82,6 +61,28 @@ namespace PromotionsWebApp.Controllers
                         pro.Staff.Jobs = jobs.ToList();
                         pro.Evaluations = eval.ToList();
 
+                    }
+                    switch (user.Role)
+                    {
+                        case UserRoleEnum.Staff:
+                            var staff = await _staffRepo.GetSingle(x => x.UserId == user.Id);
+                            proms = proms.Where(x => x.StaffId == staff.Id).ToList();
+                            break;
+                        case UserRoleEnum.HOD:
+                            proms = proms.Where(x => x.Staff.User.DepartmentId == user.DepartmentId).ToList();
+                            break;
+                        case UserRoleEnum.Dean:
+                            proms = proms.Where(x => x.Staff.User.FacultyId == user.FacultyId).ToList();
+                            break;
+                        case UserRoleEnum.IFEC:
+                            proms = proms.Where(x => x.Status == PromotionStatusEnum.IFEC).ToList();
+                            break;
+                        case UserRoleEnum.PSPC:
+                            proms = proms.Where(x => x.Status == PromotionStatusEnum.PSPC).ToList();
+                            break;
+                        case UserRoleEnum.VC:
+                            proms = proms.Where(x => x.Status == PromotionStatusEnum.VC).ToList();
+                            break;
                     }
                     ViewData["CurrentFilter"] = searchString;
                     if (!String.IsNullOrEmpty(searchString))
@@ -160,6 +161,7 @@ namespace PromotionsWebApp.Controllers
                 var promotion = await _promotionRepo.GetSingle(x => x.Id == model.AcceptDec.PromotionId, x => x.Evaluations,x=>x.Staff);
                 if (promotion != null)
                 {
+                   
                     var user = await _userManager.FindByNameAsync(User.Identity.Name);
                     if (promotion.Evaluations == null)
                         promotion.Evaluations = new List<PromotionDecision>();
@@ -184,7 +186,7 @@ namespace PromotionsWebApp.Controllers
                     promotion.Evaluations.Add(des);
                     var stffJobs = await _jobRepo.FindByIncluding(x => x.StaffId == promotion.StaffId, x => x.Rank);
                     var current = stffJobs.Where(x => x.IsCurrent).FirstOrDefault();
-                    int status = 0;
+                    int status = (int)promotion.Status;
                     if(current.Rank.Name == "Associate Professor")
                     {
                         if(promotion.Status == PromotionStatusEnum.Dean)
@@ -209,7 +211,9 @@ namespace PromotionsWebApp.Controllers
                     }
 
                     promotion.Status = (PromotionStatusEnum)status;
+                
                     await _promotionRepo.Update(promotion);
+                    promotion.Staff.User = await _userManager.FindByIdAsync(promotion.Staff.UserId);
                     if (promotion.Status == PromotionStatusEnum.Approved)
                     {
                         var stff = await _staffRepo.GetSingle(x => x.Id == promotion.StaffId, x => x.Jobs);
@@ -231,19 +235,33 @@ namespace PromotionsWebApp.Controllers
                         await _staffRepo.Update(stff);
                         var link = Url.Action("Detail", "Promotions", new { promotionId = promotion.Id }, Request.Scheme);
                         var stffUser = await _userManager.FindByIdAsync(promotion.Staff.UserId);
+                        
+                        await _emailSender.SendPromotionApproved(stffUser.Email, link);                       
+                    }
+                    if (promotion.Status != PromotionStatusEnum.Approved || promotion.Status != PromotionStatusEnum.Rejected)
+                    {
                         var allUser = _userRepo.Get();
-
-                        await _emailSender.SendPromotionApproved(stffUser.Email, link);
-
-                        if(promotion.Status!=PromotionStatusEnum.Approved||promotion.Status!=PromotionStatusEnum.Rejected)
+                        if (promotion.Status == PromotionStatusEnum.Dean)
                         {
-                            string email = allUser.Where(x=>x.Role.ToString() == promotion.Status.ToString()).FirstOrDefault()?.Email;
+                            var promStatus = promotion.Status.ToString();
+                            var sendUsers = allUser.ToList().Where(x => x.Role.ToString() == promStatus);
+                            var facId = promotion.Staff.User.FacultyId;
+                            string email = sendUsers.ToList().Where(x => x.FacultyId == facId).FirstOrDefault().Email;
                             var linkT = Url.Action("Detail", "Promotions", new { promotionId = promotion.Id }, Request.Scheme);
                             await _emailSender.SendInboxNotification(email, linkT);
                         }
+                        else
+                        {
+                            var promStatus = promotion.Status.ToString();
+                            var sendUsers = allUser.ToList().Where(x => x.Role.ToString() == promStatus);
+                            string email = sendUsers.ToList().FirstOrDefault().Email;
+                            var linkT = Url.Action("Detail", "Promotions", new { promotionId = promotion.Id }, Request.Scheme);
+                            await _emailSender.SendInboxNotification(email, linkT);
+                        }
+
                     }
                     //Todo Send Email
-                    ViewData["Toast"] = "Promotion has been rejected";
+                    ViewData["Toast"] = "Promotion has been Approved";
                     return RedirectToAction("Index", "Promotions", new { userId = user.Id });
                 }
             }
