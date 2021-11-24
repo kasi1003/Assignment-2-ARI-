@@ -41,7 +41,11 @@
                         </span>
                         <p>
                             Date Applied: @item.AddedDate.ToShortDateString()<br />
-                            Current Rank: @item.Staff.Jobs.Where(x=>x.IsCurrent).Single().Rank.Name <br />
+                            @*@if(@item.Staff.Jobs!=null && @item.Staff.Jobs.Any())
+                            {
+                                <span>Current Rank: @item.Staff.Jobs.Where(x=>x.IsCurrent==true).Single().Rank.Name</span> <br />
+                            }
+                            *@
                             Promote To: @item.Rank.Name<br />
                             Promotion Stage: @item.Status.ToString()
                         </p>
