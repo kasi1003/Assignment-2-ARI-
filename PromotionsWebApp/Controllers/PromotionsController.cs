@@ -204,6 +204,10 @@ namespace PromotionsWebApp.Controllers
                         {
                             status = (int)PromotionStatusEnum.IFEC;
                         }
+                        else if(promotion.Status == PromotionStatusEnum.IFEC)
+                        {
+                            status = (int)PromotionStatusEnum.VC;
+                        }
                         else
                         {
                             status++;
@@ -216,7 +220,9 @@ namespace PromotionsWebApp.Controllers
                     promotion.Staff.User = await _userManager.FindByIdAsync(promotion.Staff.UserId);
                     if (promotion.Status == PromotionStatusEnum.Approved)
                     {
-                        var stff = await _staffRepo.GetSingle(x => x.Id == promotion.StaffId, x => x.Jobs);
+                        var stff = await _staffRepo.GetSingle(x => x.Id == promotion.StaffId);
+                        var jobs = await _jobRepo.FindBy(x=>x.StaffId==stff.Id);
+                        stff.Jobs = jobs.ToList();
                         stff.User = await _userManager.FindByIdAsync(stff.UserId);
                         stff.User.Faculty = await _facultyRepo.GetSingle(stff.User.FacultyId.Value);
                         stff.User.Department = await _departmentRepo.GetSingle(stff.User.DepartmentId.Value);
@@ -230,6 +236,7 @@ namespace PromotionsWebApp.Controllers
                             Faculty = stff.User.Faculty.Name,
                             DateEmployed = DateTime.Now
                         };
+                        stff.User = null;
                         stff.Jobs.Add(staffJob);
 
                         await _staffRepo.Update(stff);
@@ -238,7 +245,7 @@ namespace PromotionsWebApp.Controllers
                         
                         await _emailSender.SendPromotionApproved(stffUser.Email, link);                       
                     }
-                    if (promotion.Status != PromotionStatusEnum.Approved || promotion.Status != PromotionStatusEnum.Rejected)
+                    if (promotion.Status != PromotionStatusEnum.Approved && promotion.Status != PromotionStatusEnum.Rejected)
                     {
                         var allUser = _userRepo.Get();
                         if (promotion.Status == PromotionStatusEnum.Dean)
