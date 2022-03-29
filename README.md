@@ -1,5 +1,5 @@
-# SEN-ASSIGNMENT-
-SEN Assignment
+# NUST HR Promotion System-
+NUST HR Promotion System
 
 
 User name - admin@email.com 
@@ -10,3 +10,4 @@ when adding users, use real email addresses.
 once user is added
 - username is the email address used 
 - password - NewPassword1
+
